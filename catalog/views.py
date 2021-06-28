@@ -1,11 +1,13 @@
 from django.shortcuts import render
+from django.http import HttpRequest, HttpResponse
 
 from .models import Book, Author, BookInstance, Genre
 
 # Create your views here.
 
-def index(request):
+def index(request: HttpRequest) -> HttpResponse:
     """View function for home page of site."""
+    '''This function takes an HttpRequest for the homepage and uses the index.html template to render it'''
 
     # Generate counts of some of the main objects
     num_books = Book.objects.all().count()
