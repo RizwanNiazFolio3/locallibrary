@@ -7,14 +7,10 @@ from .models import Book, Author, BookInstance, Genre
 
 from django.views import generic
 
-
-
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from django.contrib.auth.mixins import PermissionRequiredMixin
 
-
-# Create your views here.
 
 def index(request: HttpRequest) -> HttpResponse:
     """View function for home page of site."""
