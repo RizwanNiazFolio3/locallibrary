@@ -74,7 +74,7 @@ class BookInstance(models.Model):
     )
 
     @property
-    def is_overdue(self):
+    def is_overdue(self : 'BookInstance') -> bool:
         if self.due_back and date.today() > self.due_back:
             return True
         return False

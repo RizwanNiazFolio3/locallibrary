@@ -1,9 +1,13 @@
 from django.contrib.auth.models import Permission
+from django.db.models.query import QuerySet
 from django.shortcuts import render
+from django.http import HttpRequest, HttpResponse
 
 from .models import Book, Author, BookInstance, Genre
 
 from django.views import generic
+
+
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 
@@ -12,7 +16,7 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 
 # Create your views here.
 
-def index(request):
+def index(request: HttpRequest) -> HttpResponse:
     """View function for home page of site."""
 
     # Generate counts of some of the main objects
@@ -66,7 +70,7 @@ class LoanedBooksByUserListView(LoginRequiredMixin,generic.ListView):
     template_name ='catalog/bookinstance_list_borrowed_user.html'
     paginate_by = 10
 
-    def get_queryset(self):
+    def get_queryset(self: 'LoanedBooksByUserListView') -> QuerySet:
         return BookInstance.objects.filter(borrower=self.request.user).filter(status__exact='o').order_by('due_back')
 
 class BorrowedBooksListView(PermissionRequiredMixin, generic.ListView):
@@ -76,6 +80,6 @@ class BorrowedBooksListView(PermissionRequiredMixin, generic.ListView):
     template_name = 'catalog/bookinstance_list_all_borrowed.html'
     paginate_by = 10
 
-    def get_queryset(self):
+    def get_queryset(self: 'BorrowedBooksListView') -> QuerySet:
         return BookInstance.objects.filter(status__exact = 'o').order_by('due_back')
 
