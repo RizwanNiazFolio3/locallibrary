@@ -15,8 +15,6 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 def index(request: HttpRequest) -> HttpResponse:
     '''This function takes an HttpRequest for the homepage and uses the index.html template to render it'''
 
-    """View function for home page of site."""
-
     # Generate counts of some of the main objects
     num_books = Book.objects.all().count()
     num_instances = BookInstance.objects.all().count()
