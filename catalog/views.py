@@ -1,12 +1,11 @@
 from django.shortcuts import render
+from django.http import HttpRequest, HttpResponse
 
 from .models import Book, Author, BookInstance, Genre
 
 from django.views import generic
 
-# Create your views here.
-
-def index(request):
+def index(request: HttpRequest) -> HttpResponse:
     """View function for home page of site."""
 
     # Generate counts of some of the main objects
