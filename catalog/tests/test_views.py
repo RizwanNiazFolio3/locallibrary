@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required
 from django.test import TestCase
 from django.urls import reverse
 from catalog.models import Author
@@ -281,4 +282,76 @@ class RenewBookInstancesViewTest(TestCase):
         response = self.client.post(reverse('renew-book-librarian', kwargs={'pk': self.test_bookinstance1.pk}), {'renewal_date': invalid_date_in_future})
         self.assertEqual(response.status_code, 200)
         self.assertFormError(response, 'form', 'renewal_date', 'Invalid date - renewal more than 4 weeks ahead')
+
+class AuthorCreateViewTest(TestCase):
+    def setUp(self):
+        #Create user
+        test_user1 = User.objects.create_user(username='testuser1', password='1X<ISRUkw+tuK')
+        test_user2 = User.objects.create_user(username='testuser2', password='2HJ1vRV0Z&3iD')
+        test_user1.save()
+        test_user2.save()
+
+        #Give user permission
+        permission = Permission.objects.get(name='Set book as returned')
+        test_user1.user_permissions.add(permission)
+        test_user1.save()
+    
+    def test_redirect_if_not_logged_in(self):
+        '''Checks if the user is redirected to the login page if they are not already logged in'''
+        response = self.client.get(reverse('author-create'))
+        # Manually check redirect (Can't use assertRedirect, because the redirect URL is unpredictable)
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response.url.startswith('/accounts/login/'))
+    
+    def test_forbidden_if_logged_in_without_permission(self):
+        '''Checks if user has correct permission if they are logged in. If the user does not have permission they given a 403 forbidden message'''
+        login = self.client.login(username='testuser2', password='2HJ1vRV0Z&3iD')
+        response = self.client.get(reverse('author-create'))
+        self.assertEqual(response.status_code, 403)
+
+    def test_logged_in_with_permission_borrowed_book(self):
+        ''''Checks if the user is logging in with permission. If they have permission the respoonse is 200 OK'''
+        login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK')
+        response = self.client.get(reverse('author-create'))
+
+        # Check that it lets us login and that we have the correct permissions
+        self.assertEqual(response.status_code, 200)
+    
+    def test_correct_template_is_used(self):
+        '''Checks if the correct template is being used'''
+        login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK')
+        response = self.client.get(reverse('author-create'))
+        self.assertEqual(response.status_code, 200)
+
+        #Check if the correct template is being used
+        self.assertTemplateUsed(response, 'catalog/author_form.html')
+
+    def test_correct_initial_date_is_used(self):
+        '''This checks if the date of death is initially 11/6/2020'''
+        login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK')
+        response = self.client.get(reverse('author-create'))
+
+        #Get initial date of death and check
+        initial_date_of_death = '11/06/2020'
+        self.assertEqual(response.context['form'].initial['date_of_death'], initial_date_of_death)
+
+    def test_redirects_to_author_details(self):
+        '''This checks if the user is redirected to the author details page when they enter a valid author'''
+        login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK')
+
+        #Creating a valid author
+        author_first_name = 'FirstName'
+        author_last_name = 'LastName'
+        author_date_of_Birth = datetime.date.today() - datetime.timedelta(weeks=70*12*52)
+        author_date_of_death = datetime.date.today()
+
+        #Inputting Data
+        response = self.client.post(reverse('author-create'), {'first_name': author_first_name,
+                                                                'last_name': author_last_name,
+                                                                'date_of_death': author_date_of_death,
+                                                                'date_of_birth': author_date_of_Birth})
+        
+        #Checking if it redirects to the author details page of the author we just made
+        self.assertRedirects(response,reverse('author-detail',kwargs={'pk':1}))
+
 
