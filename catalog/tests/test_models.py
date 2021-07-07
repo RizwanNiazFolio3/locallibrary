@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from catalog.models import Author
+from catalog.models import Author, Language
 
 class AuthorModelTest(TestCase):
     @classmethod
@@ -47,3 +47,25 @@ class AuthorModelTest(TestCase):
         author = Author.objects.get(id=1)
         max_length = author._meta.get_field('last_name').max_length
         self.assertEqual(max_length, 100)
+
+class LanguageModelTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        Language.objects.create(name = 'Urdu')
+
+    def test_name_label(self):
+        language = Language.objects.get(id=1)
+        field_label = language._meta.get_field('name').verbose_name
+        self.assertEqual(field_label, 'name')
+    
+    def test_name_length(self):
+        language = Language.objects.get(id=1)
+        max_length = language._meta.get_field('name').max_length
+        self.assertEqual(max_length, 200)
+    
+    def test_name_is_name_of_language(self):
+        language = Language.objects.get(id=1)
+        expected_name = f'{language.name}'
+        self.assertEqual(str(language),expected_name)
+
+
