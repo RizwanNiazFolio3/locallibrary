@@ -355,3 +355,156 @@ class AuthorCreateViewTest(TestCase):
         self.assertRedirects(response,reverse('author-detail',kwargs={'pk':1}))
 
 
+class IndexViewTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        num_of_authors = 3
+        num_of_books_per_author = 2
+
+        test_language = Language.objects.create(name='English')
+        test_genre = Genre.objects.create(name='Fantasy')
+
+        for author_id in range(num_of_authors):
+            test_author = Author.objects.create(
+                first_name=f'Christian {author_id}',
+                last_name=f'Surname {author_id}',
+            )
+
+            test_author.save()
+
+            for author_book_id in range(num_of_books_per_author):
+                test_book = Book.objects.create(
+                    title = f'BookTitle {author_id} {author_book_id}',
+                    author = test_author,
+                    summary = 'Book Summary',
+                    isbn = f'ABCDEFG{author_id}{author_book_id}',
+                    language = test_language,
+                )
+                test_book.genre.set = Genre.objects.all()
+
+                test_book.save()
+
+                BookInstance.objects.create(
+                    book = test_book,
+                    imprint='Unlikely Imprint, 2016'
+                )
+            
+        tolkien = Author.objects.create(
+            first_name = "J.R.R",
+            last_name = "Tolkien"
+        )
+        tolkien.save()
+
+        lotr_book = Book.objects.create(
+            title = "Lord of The Rings",
+            author = tolkien,
+            summary = 'Some summary',
+            isbn = "ABCDEFG",
+            language = test_language,
+        )
+
+        lotr_book.genre.set(Genre.objects.all())
+        lotr_book.save()
+
+    def test_view_url_exists_at_desired_location(self):
+        response = self.client.get('/catalog/')
+        self.assertEqual(response.status_code, 200)
+
+
+    def test_view_url_accessible_by_name(self):
+        response = self.client.get(reverse('index'))
+        self.assertEqual(response.status_code, 200)
+
+    
+    def test_view_uses_correct_template(self):
+        response = self.client.get(reverse('index'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'index.html')
+
+
+    def test_number_books(self):
+        response = self.client.get(reverse('index'))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['num_books'],7)
+
+    def test_number_book_instances(self):
+        response = self.client.get(reverse('index'))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['num_instances'],6)
+
+    def test_number_book_instances_available(self):
+        response = self.client.get(reverse('index'))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['num_instances_available'],0)
+
+    def test_number_authors(self):
+        response = self.client.get(reverse('index'))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['num_authors'],4)
+
+    def test_number_fantasy_genres(self):
+        response = self.client.get(reverse('index'))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['num_fantasy_genres'],1)
+
+    def test_number_lotr_books(self):
+        response = self.client.get(reverse('index'))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['num_lotr_books'],1)
+
+    def test_number_visits(self):
+        response = self.client.get(reverse('index'))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['num_visits'],0)
+
+
+class BookListViewTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        # Create 13 authors for pagination tests
+        number_of_books = 13
+        test_language = Language.objects.create(name = 'English')
+        test_language.save()
+        for book_id in range(number_of_books):
+            test_author = Author.objects.create(
+                first_name=f'Christian {book_id}',
+                last_name=f'Surname {book_id}',
+            )
+
+            Book.objects.create(
+                title = f'BookTitle {book_id}',
+                author = test_author,
+                summary = 'Book Summary',
+                isbn = f'ABCDEFG{book_id}',
+                language = test_language
+            )
+
+    def test_view_url_exists_at_desired_location(self):
+        response = self.client.get('/catalog/books/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_view_url_accessible_by_name(self):
+        response = self.client.get(reverse('books'))
+        self.assertEqual(response.status_code, 200)
+
+    def test_view_uses_correct_template(self):
+        response = self.client.get(reverse('books'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'catalog/book_list.html')
+
+    def test_pagination_is_ten(self):
+        response = self.client.get(reverse('books'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('is_paginated' in response.context)
+        self.assertTrue(response.context['is_paginated'] == True)
+        self.assertEqual(len(response.context['book_list']), 10)
+
+    def test_lists_all_books(self):
+        # Get second page and confirm it has (exactly) remaining 3 items
+        response = self.client.get(reverse('books')+'?page=2')
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('is_paginated' in response.context)
+        self.assertTrue(response.context['is_paginated'] == True)
+        self.assertEqual(len(response.context['book_list']), 3)
+
+
