@@ -533,3 +533,40 @@ class AuthorDetailViewTest(TestCase):
     def test_http404_for_invalid_book(self):
         response = self.client.get(reverse('author-detail',kwargs={'pk': 2}))
         self.assertEqual(response.status_code, 404)
+
+class BookDetailViewTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        # Create 13 authors for pagination tests
+        test_language = Language.objects.create(name = 'English')
+        test_author = Author.objects.create(
+            first_name='Christian',
+            last_name='Surname',
+        )
+        test_author.save()
+        test_language.save()
+
+        Book.objects.create(
+            title = 'Book Name',
+            summary = 'Some summary',
+            isbn = 'ABCDEFGHI',
+            author = test_author,
+            language = test_language
+        )
+
+    def test_view_url_exists_at_desired_location(self):
+        response = self.client.get('/catalog/book/1')
+        self.assertEqual(response.status_code, 200)
+
+    def test_view_url_accessible_by_name(self):
+        response = self.client.get(reverse('book-detail',kwargs={'pk': 1}))
+        self.assertEqual(response.status_code, 200)
+
+    def test_view_uses_correct_template(self):
+        response = self.client.get(reverse('book-detail',kwargs={'pk': 1}))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'catalog/book_detail.html')
+
+    def test_http404_for_invalid_book(self):
+        response = self.client.get(reverse('book-detail',kwargs={'pk': 2}))
+        self.assertEqual(response.status_code, 404)
