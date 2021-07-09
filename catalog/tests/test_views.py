@@ -541,7 +541,7 @@ class BookDetailViewTest(TestCase):
         test_language = Language.objects.create(name = 'English')
         test_author = Author.objects.create(
             first_name='Christian',
-            last_name='Surname',
+            last_name='Surname'
         )
         test_author.save()
         test_language.save()
@@ -570,3 +570,106 @@ class BookDetailViewTest(TestCase):
     def test_http404_for_invalid_book(self):
         response = self.client.get(reverse('book-detail',kwargs={'pk': 2}))
         self.assertEqual(response.status_code, 404)
+
+
+class AuthorUpdateViewTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        #Create user
+        test_user1 = User.objects.create_user(username='testuser1', password='1X<ISRUkw+tuK')
+        test_user2 = User.objects.create_user(username='testuser2', password='2HJ1vRV0Z&3iD')
+        test_user1.save()
+        test_user2.save()
+
+        #Give user permission
+        permission = Permission.objects.get(name='Set book as returned')
+        test_user1.user_permissions.add(permission)
+        test_user1.save()
+
+        test_author = Author.objects.create(
+            first_name='Christian',
+            last_name='Surname',
+            date_of_birth = datetime.date.today() - datetime.timedelta(days=12000),
+            date_of_death = datetime.date.today() - datetime.timedelta(days=2)
+        )
+        test_author.save()
+    
+    def test_redirect_if_not_logged_in(self):
+        '''Checks if the user is redirected to the login page if they are not already logged in'''
+        response = self.client.get(reverse('author-update',kwargs={'pk':1}))
+        # Manually check redirect (Can't use assertRedirect, because the redirect URL is unpredictable)
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response.url.startswith('/accounts/login/'))
+    
+    def test_forbidden_if_logged_in_without_permission(self):
+        '''Checks if user has correct permission if they are logged in. If the user does not have permission they given a 403 forbidden message'''
+        login = self.client.login(username='testuser2', password='2HJ1vRV0Z&3iD')
+        response = self.client.get(reverse('author-update',kwargs={'pk':1}))
+        self.assertEqual(response.status_code, 403)
+
+    def test_allowed_if_logged_in_with_permission(self):
+        ''''Checks if the user is logging in with permission. If they have permission the respoonse is 200 OK'''
+        login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK')
+        response = self.client.get(reverse('author-update',kwargs={'pk':1}))
+
+        # Check that it lets us login and that we have the correct permissions
+        self.assertEqual(response.status_code, 200)
+    
+    def test_correct_template_is_used(self):
+        '''Checks if the correct template is being used'''
+        login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK')
+        response = self.client.get(reverse('author-update',kwargs={'pk':1}))
+        self.assertEqual(response.status_code, 200)
+
+        #Check if the correct template is being used
+        self.assertTemplateUsed(response, 'catalog/author_form.html')
+
+    def test_http404_for_invalid_author(self):
+        '''Enter the url for an author that does not exist'''
+        login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK')
+        response = self.client.get(reverse('author-update',kwargs={'pk':2}))
+        self.assertEqual(response.status_code, 404)
+
+    def test_correct_data_in_fields(self):
+        '''Get the information of the author using a get request'''
+        login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK')
+        response = self.client.get(reverse('author-update',kwargs={'pk':1}))
+
+        '''Check if info is correct'''
+        self.assertEqual(response.context['form'].initial['first_name'],'Christian')
+        self.assertEqual(response.context['form'].initial['last_name'],'Surname')
+        self.assertEqual(response.context['form'].initial['date_of_birth'],datetime.date.today() - datetime.timedelta(days=12000))
+        self.assertEqual(response.context['form'].initial['date_of_death'],datetime.date.today() - datetime.timedelta(days=2))
+
+    def test_update(self):
+        '''Login and go to author update page for the author that needs to be updated'''
+        login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK')
+        response = self.client.get(reverse('author-update',kwargs={'pk':1}))
+
+        '''Get information of author from the context'''
+        test_first_name = response.context['form'].initial['first_name']
+        test_last_name = response.context['form'].initial['last_name']
+        test_date_of_birth = response.context['form'].initial['date_of_birth']
+        test_date_of_death = response.context['form'].initial['date_of_death']
+
+        response = self.client.post(
+            reverse('author-update', kwargs={'pk': 1}), 
+            {
+                'first_name': 'J.D', 
+                'last_name': 'Salinger',
+                'date_of_birth': datetime.date(1919,1,1),
+                'date_of_death': datetime.date(2010,1,27)})
+
+        self.assertEqual(response.status_code,302)
+
+        test_author = Author.objects.get(id=1)
+        self.assertEqual(test_author.first_name,'J.D')
+        self.assertEqual(test_author.last_name,'Salinger')
+        self.assertEqual(test_author.date_of_birth,datetime.date(1919,1,1))
+        self.assertEqual(test_author.date_of_death,datetime.date(2010,1,27))
+
+
+
+
+
+
