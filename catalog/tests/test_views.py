@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.http import response
 from django.test import TestCase
 from django.urls import reverse
 from django.views.generic.edit import DeleteView
@@ -766,10 +767,78 @@ class AuthorDeleteViewTest(TestCase):
         authors = Author.objects.count()
         self.assertEqual(authors,1)
 
+class BookCreateViewTest(TestCase):
+    def setUp(self):
+        #Create user
+        test_user1 = User.objects.create_user(username='testuser1', password='1X<ISRUkw+tuK')
+        test_user2 = User.objects.create_user(username='testuser2', password='2HJ1vRV0Z&3iD')
+        test_user1.save()
+        test_user2.save()
 
+        #Give user permission
+        permission = Permission.objects.get(name='Set book as returned')
+        test_user1.user_permissions.add(permission)
+        test_user1.save()
+    
+    def test_redirect_if_not_logged_in(self):
+        '''Checks if the user is redirected to the login page if they are not already logged in'''
+        response = self.client.get(reverse('book-create'))
+        # Manually check redirect (Can't use assertRedirect, because the redirect URL is unpredictable)
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response.url.startswith('/accounts/login/'))
+    
+    def test_forbidden_if_logged_in_without_permission(self):
+        '''Checks if user has correct permission if they are logged in. If the user does not have permission they given a 403 forbidden message'''
+        login = self.client.login(username='testuser2', password='2HJ1vRV0Z&3iD')
+        response = self.client.get(reverse('book-create'))
+        self.assertEqual(response.status_code, 403)
 
+    def test_logged_in_with_permission_borrowed_book(self):
+        ''''Checks if the user is logging in with permission. If they have permission the respoonse is 200 OK'''
+        login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK')
+        response = self.client.get(reverse('book-create'))
 
+        # Check that it lets us login and that we have the correct permissions
+        self.assertEqual(response.status_code, 200)
+    
+    def test_correct_template_is_used(self):
+        '''Checks if the correct template is being used'''
+        login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK')
+        response = self.client.get(reverse('book-create'))
+        self.assertEqual(response.status_code, 200)
 
+        #Check if the correct template is being used
+        self.assertTemplateUsed(response, 'catalog/book_form.html')
 
+    def test_redirects_to_book_detail_view(self):
+        login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK')
 
+        test_language = Language.objects.create(
+            name = "English"
+        )
+
+        test_author = Author.objects.create(
+            first_name = 'FirstName',
+            last_name = "LastName"
+        )
+
+        test_genre = Genre.objects.create(
+            name = "Fantasy"
+        )
+
+        book_title = 'Book Name',
+        book_summary = 'Some summary',
+        book_isbn = 'ABCDEFGHI',
+        book_author = test_author,
+        book_language = test_language
+        book_genre = test_genre
+
+        response = self.client.post(reverse("book-create"),{'title': book_title,
+                                                            'summary': book_summary,
+                                                            'isbn': book_isbn,
+                                                            'author':book_author,
+                                                            'language':book_language,
+                                                            'genre':book_genre})
+
+        self.assertRedirects(response,reverse('book-detail',kwargs={'pk': 1}), status_code=200)
 
