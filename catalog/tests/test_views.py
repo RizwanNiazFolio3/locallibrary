@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.test import TestCase
 from django.urls import reverse
+from django.views.generic.edit import DeleteView
 from catalog.models import Author
 import datetime
 from django.utils import timezone
@@ -652,6 +653,7 @@ class AuthorUpdateViewTest(TestCase):
         test_date_of_birth = response.context['form'].initial['date_of_birth']
         test_date_of_death = response.context['form'].initial['date_of_death']
 
+        '''Update information using a post request'''
         response = self.client.post(
             reverse('author-update', kwargs={'pk': 1}), 
             {
@@ -660,13 +662,111 @@ class AuthorUpdateViewTest(TestCase):
                 'date_of_birth': datetime.date(1919,1,1),
                 'date_of_death': datetime.date(2010,1,27)})
 
+        '''Check if status is 302: Found'''
         self.assertEqual(response.status_code,302)
 
+        '''Check if the values for the author have been changed in the database'''
         test_author = Author.objects.get(id=1)
         self.assertEqual(test_author.first_name,'J.D')
         self.assertEqual(test_author.last_name,'Salinger')
         self.assertEqual(test_author.date_of_birth,datetime.date(1919,1,1))
         self.assertEqual(test_author.date_of_death,datetime.date(2010,1,27))
+
+
+class AuthorDeleteViewTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        #Create user
+        test_user1 = User.objects.create_user(username='testuser1', password='1X<ISRUkw+tuK')
+        test_user2 = User.objects.create_user(username='testuser2', password='2HJ1vRV0Z&3iD')
+        test_user1.save()
+        test_user2.save()
+
+        #Give user permission
+        permission = Permission.objects.get(name='Set book as returned')
+        test_user1.user_permissions.add(permission)
+        test_user1.save()
+
+        num_authors = 2
+        for authors in range(num_authors):
+            test_author = Author.objects.create(
+                first_name=f'Christian {authors}',
+                last_name=f'Surname {authors}',
+                date_of_birth = datetime.date.today() - datetime.timedelta(days=12000),
+                date_of_death = datetime.date.today() - datetime.timedelta(days=2)
+            )
+            test_author.save()
+    
+    def test_redirect_if_not_logged_in(self):
+        '''Checks if the user is redirected to the login page if they are not already logged in'''
+        response = self.client.get(reverse('author-delete',kwargs={'pk':1}))
+        # Manually check redirect (Can't use assertRedirect, because the redirect URL is unpredictable)
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response.url.startswith('/accounts/login/'))
+    
+    def test_forbidden_if_logged_in_without_permission(self):
+        '''Checks if user has correct permission if they are logged in. If the user does not have permission they given a 403 forbidden message'''
+        login = self.client.login(username='testuser2', password='2HJ1vRV0Z&3iD')
+        response = self.client.get(reverse('author-delete',kwargs={'pk':1}))
+        self.assertEqual(response.status_code, 403)
+
+    def test_allowed_if_logged_in_with_permission(self):
+        ''''Checks if the user is logging in with permission. If they have permission the respoonse is 200 OK'''
+        login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK')
+        response = self.client.get(reverse('author-delete',kwargs={'pk':1}))
+
+        # Check that it lets us login and that we have the correct permissions
+        self.assertEqual(response.status_code, 200)
+    
+    def test_correct_template_is_used(self):
+        '''Checks if the correct template is being used'''
+        login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK')
+        response = self.client.get(reverse('author-delete',kwargs={'pk':1}))
+        self.assertEqual(response.status_code, 200)
+
+        #Check if the correct template is being used
+        self.assertTemplateUsed(response, 'catalog/author_confirm_delete.html')
+
+    def test_http404_for_invalid_author(self):
+        '''Enter the url for an author that does not exist'''
+        login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK')
+        response = self.client.get(reverse('author-delete',kwargs={'pk':3}))
+        self.assertEqual(response.status_code, 404)
+
+    def test_page_has_correct_author(self):
+        '''Enter url for the delete page of an author'''
+        login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK')
+        response = self.client.get(reverse('author-delete',kwargs={'pk':1}))
+
+        '''Check if author is correct'''
+        test_author = response.context['author']
+        self.assertEqual(str(test_author),'Surname 0, Christian 0')
+    
+    def test_redirects(self):
+        '''Login, then delete author'''
+        login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK')
+        response = self.client.post(reverse('author-delete',kwargs={'pk':1}),follow=True)
+
+        '''Check if page redirects'''
+        self.assertRedirects(response, reverse('authors'), status_code=302)
+
+    def test_if_response_code_is_correct(self):
+        '''Login then delete author'''
+        login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK')
+        response = self.client.post(reverse('author-delete',kwargs={'pk':1}))
+
+        '''Check if the status code is 302:Found'''
+        self.assertEqual(response.status_code, 302)
+    
+    def test_if_author_is_deleted(self):
+        login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK')
+        response_delete = self.client.post(reverse('author-delete',kwargs={'pk':1}))
+
+        '''Check if author exists'''
+        authors = Author.objects.count()
+        self.assertEqual(authors,1)
+
+
 
 
 
