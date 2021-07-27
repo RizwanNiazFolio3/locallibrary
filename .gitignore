@@ -5,3 +5,7 @@
 
 # Database
 *.sqlite3
+
+*.coverage
+*htmlcov
+*.vscode

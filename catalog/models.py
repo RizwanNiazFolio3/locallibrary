@@ -31,6 +31,9 @@ class Book(models.Model):
     # Genre class has already been defined so we can specify the object above.
     genre = models.ManyToManyField(Genre, help_text='Select a genre for this book')
     language = models.ForeignKey('Language', on_delete=models.SET_NULL, null=True)
+    
+    class Meta:
+        ordering = ['title']
 
     def __str__(self):
         """String for representing the Model object."""
@@ -54,7 +57,6 @@ class BookInstance(models.Model):
     imprint = models.CharField(max_length=200)
     due_back = models.DateField(null=True, blank=True)
     borrower = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
-
 
     LOAN_STATUS = (
         ('m', 'Maintenance'),
