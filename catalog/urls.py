@@ -4,9 +4,13 @@ from rest_framework import routers
 from .api  import AuthorViewSet, RegisterApiView, BlacklistRefreshView, RegisterLibrarianApiView, HomePageApiView
 from rest_framework_simplejwt.views import TokenRefreshView
 from . import custom_tokens
+from .api  import AuthorViewSet
+from .book_api  import BookViewSet
+
 
 router = routers.DefaultRouter()
 router.register('api/authors',AuthorViewSet,'author-api')
+router.register('api/books',BookViewSet,'book-api')
 
 urlpatterns = [
     path('', views.index, name='index'),
@@ -29,6 +33,8 @@ urlpatterns = [
     path('api/logout', BlacklistRefreshView.as_view(), name="logout"),#API used to blacklist refresh token
     path('api/register-librarian', RegisterLibrarianApiView.as_view(), name='librarian-register-api'),#API used to register librarians
     path('api/home', HomePageApiView.as_view(),name = 'home-page')
+    
+
 ]
 
 urlpatterns += router.urls
