@@ -1,5 +1,10 @@
 from django.urls import path
 from . import views
+from rest_framework import routers
+from .api  import AuthorViewSet
+
+router = routers.DefaultRouter()
+router.register('api/authors',AuthorViewSet,'author-api')
 
 urlpatterns = [
     path('', views.index, name='index'),
@@ -17,3 +22,5 @@ urlpatterns = [
     path('book/<int:pk>/update/', views.BookUpdate.as_view(), name='book-update'),
     path('book/<int:pk>/delete/', views.BookDelete.as_view(), name='book-delete'),
 ]
+
+urlpatterns += router.urls
