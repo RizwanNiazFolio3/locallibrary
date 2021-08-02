@@ -842,7 +842,7 @@ class BookCreateViewTest(TestCase):
                                                             'language': book_language,
                                                             'genre':book_genre})
 
-        self.assertRedirects(response,reverse('book-detail',kwargs={'pk':1}))
+        self.assertRedirects(response,reverse('book-detail', kwargs={'pk':1}))
 
 
 class BookUpdateViewTest(TestCase):
@@ -960,11 +960,11 @@ class BookUpdateViewTest(TestCase):
         test_genres = response.context['form'].initial['genre']
 
         response_post = self.client.post(reverse('book-update',kwargs={'pk':1}),{'title': 'Lord of The Rings',
-                                                            'author': 'Generic, Name',
-                                                            'summary': "Some summary",
-                                                            'isbn': "ABCD",
-                                                            'language': "Enlish I guess",
-                                                            'genre':['Fiction']})
+                                                                                'author': 'Generic, Name',
+                                                                                'summary': "Some summary",
+                                                                                'isbn': "ABCD",
+                                                                                'language': "Enlish I guess",
+                                                                                'genre':['Fiction']})
         
         self.assertEqual(response_post.status_code,302)
 
