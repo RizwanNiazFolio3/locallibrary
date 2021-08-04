@@ -26,9 +26,3 @@ class IsLibrarian(permissions.BasePermission):
         One of methods in the SAFE_METHODS attributes. So anonymous users and norml non librarians only get access read operations
         '''
         return False
-
-
-
-
-
-
