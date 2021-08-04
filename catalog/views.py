@@ -24,7 +24,6 @@ from django.urls import reverse_lazy
 from catalog.models import Author
 
 
-
 # Create your views here.
 
 def index(request):

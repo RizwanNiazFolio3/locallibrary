@@ -30,7 +30,6 @@ class AuthorViewSet(viewsets.ModelViewSet):
     serializer_class = AuthorSerializer
 
 
-
 class LoginView(APIView):
     """Provides login api for user"""
 
