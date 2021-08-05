@@ -3,6 +3,7 @@ from django.test import TestCase
 from rest_framework.test import APIClient, APITestCase
 from catalog.models import Author
 import datetime
+from django.contrib.auth.models import User, Group
 
 class AuthorAPIViewTest(APITestCase):
     '''This class tests the author CRUD api'''
@@ -14,7 +15,15 @@ class AuthorAPIViewTest(APITestCase):
                 first_name=f'firstname {author}',
                 last_name=f'lastname {author}'
             )
-    
+        
+        test_user1 = User.objects.create_user(username='testuser1', password='1X<ISRUkw+tuK')
+        test_user2 = User.objects.create_user(username='testuser2', password='2HJ1vRV0Z&3iD')
+        Group.objects.create(name="Librarians")
+        librarian_group = Group.objects.get(name="Librarians")
+        librarian_group.user_set.add(test_user1)
+        test_user1.save()
+        test_user2.save()
+
     def test_read_author_list_response(self):
         '''Checking to see if th authors api exists at the desired location'''
         #Note: according to the django REST framework docs, it is considered best practice to use the absolute url of web apis
@@ -74,8 +83,37 @@ class AuthorAPIViewTest(APITestCase):
 
         self.assertEqual(response_body,expected_response)
 
-    def test_create_author_response(self):
+    def test_create_author_response_without_authorization(self):
         '''This tests whether or not an author is created'''
+        data = {
+            "first_name": "John",
+            "last_name": "Doe"
+        }
+        response = self.client.post(
+            'http://127.0.0.1:8000/catalog/api/authors/',
+            data,
+            format="json")
+        
+        #Checking status code 201 created
+        self.assertEqual(response.status_code,401)
+
+    def test_create_author_response_with_authorization(self):
+        '''This tests the create author response when user is authorized'''
+        user_credentials = {
+            "username": "testuser1",
+            "password": "1X<ISRUkw+tuK"
+        }
+
+        response = self.client.post(
+            'http://127.0.0.1:8000/catalog/api/token/',
+            user_credentials,
+            format="json"
+        )
+
+        response_body = response.json()
+        access_token = response_body['access']
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token}')
+
         data = {
             "first_name": "John",
             "last_name": "Doe"
@@ -88,8 +126,24 @@ class AuthorAPIViewTest(APITestCase):
         #Checking status code 201 created
         self.assertEqual(response.status_code,201)
 
+
     def test_create_author_body(self):
         '''This tests the body of the response when an author is created'''
+        user_credentials = {
+            "username": "testuser1",
+            "password": "1X<ISRUkw+tuK"
+        }
+
+        response = self.client.post(
+            'http://127.0.0.1:8000/catalog/api/token/',
+            user_credentials,
+            format="json"
+        )
+
+        response_body = response.json()
+        access_token = response_body['access']
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token}')
+
         data = {
             "first_name": "John",
             "last_name": "Doe"
@@ -107,11 +161,40 @@ class AuthorAPIViewTest(APITestCase):
             "date_of_birth": None,
             "date_of_death": None,
         }
-        #Checking status code 201 created
+        #Checking whether the response was as expected
         self.assertEqual(response_body,expected_response)
 
-    def test_update_author_response(self):
+    def test_update_author_response_without_authorization(self):
         '''This tests whether or not an author is updated'''
+        data = {
+            "first_name": "John",
+            "last_name": "Doe"
+        }
+        response = self.client.put(
+            'http://127.0.0.1:8000/catalog/api/authors/1/',
+            data,
+            format="json")
+        
+        #Checking status code 401 unauthorized
+        self.assertEqual(response.status_code,401)
+
+    def test_update_author_response_with_authorization(self):
+        '''This tests the update author response when user is authorized'''
+        user_credentials = {
+            "username": "testuser1",
+            "password": "1X<ISRUkw+tuK"
+        }
+
+        response = self.client.post(
+            'http://127.0.0.1:8000/catalog/api/token/',
+            user_credentials,
+            format="json"
+        )
+
+        response_body = response.json()
+        access_token = response_body['access']
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token}')
+
         data = {
             "first_name": "John",
             "last_name": "Doe"
@@ -123,9 +206,26 @@ class AuthorAPIViewTest(APITestCase):
         
         #Checking status code 201 created
         self.assertEqual(response.status_code,200)
+        
 
     def test_update_author(self):
         '''This tests whether or not an author is updated in the database'''
+        #Getting authorization credentials
+        user_credentials = {
+            "username": "testuser1",
+            "password": "1X<ISRUkw+tuK"
+        }
+
+        response = self.client.post(
+            'http://127.0.0.1:8000/catalog/api/token/',
+            user_credentials,
+            format="json"
+        )
+
+        response_body = response.json()
+        access_token = response_body['access']
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token}')
+        
         data = {
             "first_name": "John",
             "last_name": "Doe"
@@ -142,15 +242,55 @@ class AuthorAPIViewTest(APITestCase):
         #Check whether the author is updated in the database
         self.assertNotEqual(str(author_2),str(Author.objects.get(id = 2)))
 
-    def test_delete_author_response(self):
+    def test_delete_author_response_without_authorization(self):
         '''This tests whether an author gets deleted'''
+        response = self.client.delete('http://127.0.0.1:8000/catalog/api/authors/2/')
+
+        #checking whether response was 401 unauthorized
+        self.assertEqual(response.status_code,401)
+
+    def test_delete_author_response_with_authorization(self):
+        '''This tests whether or not an author is deleted'''
+        #Getting authorization credentials
+        user_credentials = {
+            "username": "testuser1",
+            "password": "1X<ISRUkw+tuK"
+        }
+
+        response = self.client.post(
+            'http://127.0.0.1:8000/catalog/api/token/',
+            user_credentials,
+            format="json"
+        )
+
+        response_body = response.json()
+        access_token = response_body['access']
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token}')
+
         response = self.client.delete('http://127.0.0.1:8000/catalog/api/authors/2/')
 
         #204 means that the request completed but no reponse was returned
         self.assertEqual(response.status_code,204)
+        
 
     def test_author_was_deleted(self):
         '''This tests whether or not an author was deleted successfuly in the database'''
+
+        #Getting authorization credentials
+        user_credentials = {
+            "username": "testuser1",
+            "password": "1X<ISRUkw+tuK"
+        }
+
+        response = self.client.post(
+            'http://127.0.0.1:8000/catalog/api/token/',
+            user_credentials,
+            format="json"
+        )
+
+        response_body = response.json()
+        access_token = response_body['access']
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token}')
 
         #Count the number of authors before the delete
         count_before_delete = Author.objects.count()
@@ -159,6 +299,398 @@ class AuthorAPIViewTest(APITestCase):
         #Count number of authors after delete
         count_after_delete = Author.objects.count()
         self.assertLess(count_after_delete,count_before_delete)
+
+class RegisterUserTest(APITestCase):
+    def setUp(cls):
+        test_user1 = User.objects.create_user(username='testuser1', password='1X<ISRUkw+tuK')
+        test_user1.save()
+    
+    def test_create_new_user_response(self):
+        '''Tis tests the response when a new user is created'''
+        data = {
+            "username": "testuser2",
+            "password": "2HJ1vRV0Z&3iD"
+        }
+
+        response = self.client.post(
+            'http://127.0.0.1:8000/catalog/api/register',
+            data,
+            format="json"
+        )
+
+        self.assertEqual(response.status_code,200)
+
+    def test_create_existing_user_response(self):
+        '''This tests the response when a user with an existing name is created'''
+        data = {
+            "username": "testuser1",
+            "password": "2HJ1vRV0Z&3iD"
+        }
+
+        response = self.client.post(
+            'http://127.0.0.1:8000/catalog/api/register',
+            data,
+            format="json"
+        )
+
+        self.assertEqual(response.status_code,400)
+
+    def test_create_new_user_body(self):
+        '''This tests the response body when new user is created'''
+        data = {
+            "username": "testuser2",
+            "password": "2HJ1vRV0Z&3iD"
+        }
+
+        response = self.client.post(
+            'http://127.0.0.1:8000/catalog/api/register',
+            data,
+            format="json"
+        )
+
+        expected_response = {
+            "user": {
+                "id": 2,
+                "username": "testuser2",
+                "groups": []
+            },
+            "message": "User Created Successfully.  Now perform Login to get your token"
+        }
+
+
+        response_body = response.json()
+
+        self.assertEqual(response_body,expected_response)
+
+    def test_create_existing_user_body(self):
+        '''This tests the response body when an existing user is created'''
+        data = {
+            "username": "testuser1",
+            "password": "2HJ1vRV0Z&3iD"
+        }
+
+        response = self.client.post(
+            'http://127.0.0.1:8000/catalog/api/register',
+            data,
+            format="json"
+        )
+
+        expected_response = {
+            "username": [
+                "A user with that username already exists."
+            ]
+        }
+
+
+        response_body = response.json()
+
+        self.assertEqual(response_body,expected_response)
+
+    def test_user_is_created(self):
+        '''This tests the response body when an existing user is created'''
+        data = {
+            "username": "testuser2",
+            "password": "2HJ1vRV0Z&3iD"
+        }
+
+        num_before_creation = User.objects.count()
+
+        self.client.post(
+            'http://127.0.0.1:8000/catalog/api/register',
+            data,
+            format="json"
+        )
+
+        num_after_creation = User.objects.count()
+
+        self.assertLess(num_before_creation,num_after_creation)
+
+    def test_user_is_not_librarian(self):
+        '''This tests the response body when an existing user is created'''
+        data = {
+            "username": "testuser2",
+            "password": "2HJ1vRV0Z&3iD"
+        }
+
+        self.client.post(
+            'http://127.0.0.1:8000/catalog/api/register',
+            data,
+            format="json"
+        )
+
+        user = User.objects.get(username="testuser2")
+        is_librarian = user.groups.filter(name="Librarians").count()
+
+        self.assertEqual(is_librarian,0)
+
+
+class RegisterLibrarianTest(APITestCase):
+    def setUp(cls):
+        test_user1 = User.objects.create_user(username='testuser1', password='1X<ISRUkw+tuK')
+        test_user2 = User.objects.create_user(username='testuser2', password='2HJ1vRV0Z&3iD')
+        test_user1.save()
+        Group.objects.create(name="Librarians")
+        librarian_group = Group.objects.get(name="Librarians")
+        librarian_group.user_set.add(test_user1)
+        test_user1.save()
+        test_user2.save()
+
+    def test_create_user_without_authorization(self):
+        '''This tests the response when a user is created without being authenticated'''
+        data = {
+            "username": "testuser3",
+            "password": "2HJ1vRV0Z&3iD"
+        }
+
+        response = self.client.post(
+            'http://127.0.0.1:8000/catalog/api/register-librarian',
+            data,
+            format="json"
+        )
+
+        self.assertEqual(response.status_code,401)
+
+    def test_create_user_with_wrong_authorization(self):
+        #Getting authorization credentials
+        user_credentials = {
+            "username": "testuser2",
+            "password": "2HJ1vRV0Z&3iD"
+        }
+
+        response = self.client.post(
+            'http://127.0.0.1:8000/catalog/api/token/',
+            user_credentials,
+            format="json"
+        )
+
+        response_body = response.json()
+        access_token = response_body['access']
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token}')
+        data = {
+            "username": "testuser3",
+            "password": "2HJ1vRV0Z&3iD"
+        }
+
+        response = self.client.post(
+            'http://127.0.0.1:8000/catalog/api/register-librarian',
+            data,
+            format="json"
+        )
+
+        self.assertEqual(response.status_code,403)
+
+    def test_user_is_librarian(self):
+        '''This tests the response body when an existing user is created'''
+        #Getting authorization credentials
+        user_credentials = {
+            "username": "testuser1",
+            "password": "1X<ISRUkw+tuK"
+        }
+
+        response = self.client.post(
+            'http://127.0.0.1:8000/catalog/api/token/',
+            user_credentials,
+            format="json"
+        )
+
+        response_body = response.json()
+        access_token = response_body['access']
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token}')
+
+        data = {
+            "username": "testuser3",
+            "password": "2HJ1vRV0Z&3iD"
+        }
+
+        self.client.post(
+            'http://127.0.0.1:8000/catalog/api/register-librarian',
+            data,
+            format="json"
+        )
+
+        user = User.objects.get(username="testuser3")
+        is_librarian = user.groups.filter(name="Librarians").count()
+
+        self.assertEqual(is_librarian,1)
+
+
+    def test_create_new_user_response_with_authorization(self):
+        '''Tis tests the response when a new user is created'''
+        #Getting authorization credentials
+        user_credentials = {
+            "username": "testuser1",
+            "password": "1X<ISRUkw+tuK"
+        }
+
+        response = self.client.post(
+            'http://127.0.0.1:8000/catalog/api/token/',
+            user_credentials,
+            format="json"
+        )
+
+        response_body = response.json()
+        access_token = response_body['access']
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token}')
+
+        data = {
+            "username": "testuser3",
+            "password": "2HJ1vRV0Z&3iD"
+        }
+
+        response = self.client.post(
+            'http://127.0.0.1:8000/catalog/api/register-librarian',
+            data,
+            format="json"
+        )
+
+        self.assertEqual(response.status_code,200)
+
+    def test_create_existing_user_response(self):
+        '''This tests the response when a user with an existing name is created'''
+        #Getting authorization credentials
+        user_credentials = {
+            "username": "testuser1",
+            "password": "1X<ISRUkw+tuK"
+        }
+
+        response = self.client.post(
+            'http://127.0.0.1:8000/catalog/api/token/',
+            user_credentials,
+            format="json"
+        )
+
+        response_body = response.json()
+        access_token = response_body['access']
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token}')
+        data = {
+            "username": "testuser2",
+            "password": "2HJ1vRV0Z&3iD"
+        }
+
+        response = self.client.post(
+            'http://127.0.0.1:8000/catalog/api/register-librarian',
+            data,
+            format="json"
+        )
+
+        self.assertEqual(response.status_code,400)
+
+    def test_create_new_user_body(self):
+        '''This tests the response body when new user is created'''
+        #Getting authorization credentials
+        user_credentials = {
+            "username": "testuser1",
+            "password": "1X<ISRUkw+tuK"
+        }
+
+        response = self.client.post(
+            'http://127.0.0.1:8000/catalog/api/token/',
+            user_credentials,
+            format="json"
+        )
+
+        response_body = response.json()
+        access_token = response_body['access']
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token}')
+
+        data = {
+            "username": "testuser3",
+            "password": "2HJ1vRV0Z&3iD"
+        }
+
+        response = self.client.post(
+            'http://127.0.0.1:8000/catalog/api/register-librarian',
+            data,
+            format="json"
+        )
+
+        expected_response = {
+            "user": {
+                "id": 3,
+                "username": "testuser3",
+                "groups": [1]
+            },
+            "message": "User Created Successfully.  Now perform Login to get your token"
+        }
+
+
+        response_body = response.json()
+
+        self.assertEqual(response_body,expected_response)
+
+    def test_create_existing_user_body(self):
+        '''This tests the response body when an existing user is created'''
+        #Getting authorization credentials
+        user_credentials = {
+            "username": "testuser1",
+            "password": "1X<ISRUkw+tuK"
+        }
+
+        response = self.client.post(
+            'http://127.0.0.1:8000/catalog/api/token/',
+            user_credentials,
+            format="json"
+        )
+
+        response_body = response.json()
+        access_token = response_body['access']
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token}')
+
+        data = {
+            "username": "testuser2",
+            "password": "2HJ1vRV0Z&3iD"
+        }
+
+        response = self.client.post(
+            'http://127.0.0.1:8000/catalog/api/register-librarian',
+            data,
+            format="json"
+        )
+
+        expected_response = {
+            "username": [
+                "A user with that username already exists."
+            ]
+        }
+
+
+        response_body = response.json()
+
+        self.assertEqual(response_body,expected_response)
+
+    def test_user_is_created(self):
+        '''This tests the response body when an existing user is created'''
+        #Getting authorization credentials
+        user_credentials = {
+            "username": "testuser1",
+            "password": "1X<ISRUkw+tuK"
+        }
+
+        response = self.client.post(
+            'http://127.0.0.1:8000/catalog/api/token/',
+            user_credentials,
+            format="json"
+        )
+
+        response_body = response.json()
+        access_token = response_body['access']
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token}')
+        data = {
+            "username": "testuser4",
+            "password": "2HJ1vRV0Z&3iD"
+        }
+
+        num_before_creation = User.objects.count()
+
+        self.client.post(
+            'http://127.0.0.1:8000/catalog/api/register-librarian',
+            data,
+            format="json"
+        )
+
+        num_after_creation = User.objects.count()
+
+        self.assertLess(num_before_creation,num_after_creation)
 
 
 
