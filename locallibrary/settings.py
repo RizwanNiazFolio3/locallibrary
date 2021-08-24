@@ -43,11 +43,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'catalog.apps.CatalogConfig', #This object was created for us in /catalog/apps.py
+    'corsheaders', #This allows cross origin resource sharing (CORS) allowing us to access the api from our react app
     'rest_framework',
     'rest_framework_simplejwt.token_blacklist',#Installing this app allows us to blacklist tokens that are no longer in use
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware', #Middleware needed to use corsheaders
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -200,4 +202,11 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN_LIFETIME': timedelta(minutes=5),
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 }
+
+CORS_ALLOWED_ORIGINS = [
+    "https://example.com",
+    "https://sub.example.com",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
 
