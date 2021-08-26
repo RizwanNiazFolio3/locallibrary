@@ -1,6 +1,10 @@
 import React from 'react'
 
 function AuthorListItem(props) {
+    /**
+     * This takes an author object as a prop and
+     * Renders out the details to be displayed on the author list page
+     */
     return (
         <>
             {props.item.last_name},
