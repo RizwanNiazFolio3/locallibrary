@@ -3,6 +3,7 @@ import './App.css';
 import Navbar from './components/Navbar';
 import Authors from "./components/pages/Authors";
 import Home from "./components/pages/Home";
+import Login from "./components/pages/Login"
 import {BrowserRouter as Router, Route, Switch} from 'react-router-dom';
 
 function App() {
@@ -22,6 +23,9 @@ function App() {
           {/* Relative URL for the authors list page */}
           <Route path = "/authors">
             <Authors />
+          </Route>
+          <Route path = "/Login">
+            <Login />
           </Route>
         </Switch>
       </div>

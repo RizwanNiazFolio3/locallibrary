@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react'
-import axios from "axios"
+import axiosInstance from "../../axios"
 import AuthorListItem from '../AuthorListItem'
 
 function Authors() {
@@ -20,7 +20,7 @@ function Authors() {
          * Since we've added "proxy": "http://127.0.0.1:8000/", to packages.json,
          * We do not need to use the full URL and instead a relative URL can be used to access the endpoint
          */
-        axios.get("catalog/api/authors")
+        axiosInstance.get("catalog/api/authors")
         .then(
             (res) => {setAuthorList(res.data)},
             (error) => {console.log("There was an error retrieving author list")}//Place holder. Will be used for error handling
