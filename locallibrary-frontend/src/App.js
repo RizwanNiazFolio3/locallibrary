@@ -4,6 +4,7 @@ import Navbar from './components/Navbar';
 import Authors from "./components/pages/Authors";
 import Home from "./components/pages/Home";
 import Login from "./components/pages/Login"
+import AuthorDetails from './components/pages/AuthorDetails';
 import {BrowserRouter as Router, Route, Switch} from 'react-router-dom';
 
 function App() {
@@ -21,11 +22,14 @@ function App() {
             <Home />
           </Route>
           {/* Relative URL for the authors list page */}
-          <Route path = "/authors">
+          <Route exact path = "/authors">
             <Authors />
           </Route>
           <Route path = "/Login">
             <Login />
+          </Route>
+          <Route path = "/authors/:id(\d+)">
+            <AuthorDetails />
           </Route>
         </Switch>
       </div>

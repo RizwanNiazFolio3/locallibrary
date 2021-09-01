@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react'
-import axios from "axios"
+import axiosInstance from "../../axios"
 
 function Home() {
     /**
@@ -19,7 +19,7 @@ function Home() {
          * Since we've added "proxy": "http://127.0.0.1:8000/", to packages.json,
          * We do not need to use the full URL and instead a relative URL can be used to access the endpoint
          */
-        axios.get("catalog/api/home")
+        axiosInstance.get("/catalog/api/home")
         .then(
             (res) => {setData(res.data)},
             (error) => {console.log("An error occured")}

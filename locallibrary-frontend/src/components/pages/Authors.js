@@ -1,8 +1,16 @@
 import React, {useEffect, useState} from 'react'
 import axiosInstance from "../../axios"
 import AuthorListItem from '../AuthorListItem'
+import {
+    BrowserRouter as Router,
+    Switch,
+    Route,
+    Link,
+    useRouteMatch
+} from 'react-router-dom'
 
 function Authors() {
+    let {path,url} = useRouteMatch();
     /**
      * This renders the list of authors page.
      * It makes a get request to the authors api end point and saves
@@ -20,7 +28,7 @@ function Authors() {
          * Since we've added "proxy": "http://127.0.0.1:8000/", to packages.json,
          * We do not need to use the full URL and instead a relative URL can be used to access the endpoint
          */
-        axiosInstance.get("catalog/api/authors")
+        axiosInstance.get("/catalog/api/authors")
         .then(
             (res) => {setAuthorList(res.data)},
             (error) => {console.log("There was an error retrieving author list")}//Place holder. Will be used for error handling
@@ -41,9 +49,22 @@ function Authors() {
          * is thus empty. Which is why we need to use the ternary operator here to avoid any missing key warnings React might give us
          */
         const authorListItemComponent = authorList.map(author => {
-                return <li key = {(author.id != null) ? author.id.toString() : null}>
-                    <AuthorListItem key = {author.id} item = {author} />
+            if (author.id == null){
+                return (
+                    <li key = {null}>
+                        No items
                     </li>
+                )
+            }
+            else{
+                return(
+                    <li key = {author.id.toString()}>
+                        <Link to={`${url}/${parseInt(author.id)}`}>
+                            <AuthorListItem key = {author.id} item = {author} />
+                        </Link>
+                    </li>
+                ) 
+            }
         })
         return authorListItemComponent
     }

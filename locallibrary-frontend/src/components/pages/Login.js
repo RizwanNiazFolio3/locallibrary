@@ -1,7 +1,7 @@
 import React, {useState} from 'react'
 import axiosInstance from "../../axios"
-import jwt_decode from "jwt-decode";
 import {useHistory} from 'react-router-dom'
+import jwt_decode from 'jwt-decode'
 
 function Login() {
     const history = useHistory()
@@ -16,14 +16,17 @@ function Login() {
             username: userName,
             password: password
         }
-        axiosInstance.post("catalog/api/token/",data)
+        axiosInstance.post("/catalog/api/token/",data)
         .then((res) =>{
             localStorage.setItem('access_token',res.data.access)
             localStorage.setItem('refresh_token',res.data.refresh)
-            console.log(localStorage.getItem('access_token'))
-            console.log(localStorage.getItem('refresh_token'))
-            console.log(jwt_decode(localStorage.getItem('access_token')))
-            console.log(jwt_decode(localStorage.getItem('refresh_token')))
+            const decoded_token = jwt_decode(localStorage.getItem("access_token"))
+            localStorage.setItem('user_id',decoded_token.user_id)
+            localStorage.setItem('isLibrarian',decoded_token.isLibrarian)
+            localStorage.setItem('isLoggedIn',true)
+            console.log(localStorage.getItem("isLibrarian"))
+            console.log(localStorage.getItem('user_id'))
+            axiosInstance.defaults.headers['Authorization'] = "Bearer " + localStorage.getItem('access_token')
             history.push('/')
         })
     }
