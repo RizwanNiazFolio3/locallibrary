@@ -53,6 +53,8 @@ function Authors() {
                 )
             }
             else{
+                //Passing the link to an authors details page as a prop.
+                //The AuthorListItem component then uses the linksto prop to create a link to the authors details page
                 return(
                     <li key = {author.id.toString()}>
                         <AuthorListItem 

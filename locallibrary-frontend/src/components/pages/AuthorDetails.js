@@ -7,6 +7,7 @@ import {
 
 
 function AuthorDetails() {
+    //Getting the id of the author from the url of the current page as a parameter
     let {id} = useParams();
 
     const [firstName,setFirstName] = useState("")
@@ -14,6 +15,7 @@ function AuthorDetails() {
     const [dateOfBirth,setDateOfBirth] = useState("")
     const [dateOfDeath,setDateOfDeath] = useState("")
 
+    //Getting the details of a specific author from the api endpoint
     useEffect(() => {
         axiosInstance.get("/catalog/api/authors/"+id)
         .then(response =>{
@@ -23,7 +25,8 @@ function AuthorDetails() {
             setDateOfDeath(response.data.date_of_death)
         })
     },[id])
-    
+    //Rendering out the Author page. 
+    //The Book Description portion is a placeholder as the api to get the books for an author has not been made yet
     return (
         <div>
             <h1>Author: {lastName}, {firstName}</h1>

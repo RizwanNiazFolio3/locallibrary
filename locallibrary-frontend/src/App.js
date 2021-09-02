@@ -14,6 +14,7 @@ function App() {
      */
     <Router>
       <div>
+        {/**The Authorization context provider is passed to all of the components */}
         <AuthContextProvider>
           {/* The nav bar should be displayed on all the pages */}
           <Navbar/>

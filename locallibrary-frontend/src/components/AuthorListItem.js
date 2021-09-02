@@ -14,6 +14,7 @@ function AuthorListItem(props) {
     const {url} = useRouteMatch()
     const {isLibrarian} = useContext(AuthContext)
 
+    //This function runs if the current user is a librarian. i.e has permission to edit or delete an authors details
     function librarianLinks(){
         return (
             <>

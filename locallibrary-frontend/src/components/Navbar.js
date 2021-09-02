@@ -12,7 +12,7 @@ function Navbar() {
             <p><Link to = "/books">All books</Link></p>
             {/* Author list page */}
             <p><Link to = "/authors">All authors</Link></p>
-            {/* Login page (not implemented yet) */}
+            {/* Logout Component conditionally renders based on if the user is logged in or not */}
             <LoginComponent />
         </div>
     )
