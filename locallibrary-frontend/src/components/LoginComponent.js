@@ -1,23 +1,24 @@
-import React, {useState, useEffect} from 'react'
+import React, {useContext} from 'react'
 import Logout from './Logout'
 import {Link} from 'react-router-dom'
+import {AuthContext} from '../contexts/AuthContext'
 
 
 function LoginComponent() {
-
-    if (localStorage.getItem("isLoggedIn") == "true"){
+    const {isAuthenticated} = useContext(AuthContext)
+    if (isAuthenticated === true){
         return(
             <>
                 <Logout />
             </>
-        )
+        ) 
     }
     else{
         return(
             <>
                 <p><Link to = "/Login">Login</Link></p>
             </>
-        )
+        )  
     }
 }
 

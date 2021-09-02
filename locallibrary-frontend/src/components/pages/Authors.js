@@ -2,15 +2,11 @@ import React, {useEffect, useState} from 'react'
 import axiosInstance from "../../axios"
 import AuthorListItem from '../AuthorListItem'
 import {
-    BrowserRouter as Router,
-    Switch,
-    Route,
-    Link,
     useRouteMatch
 } from 'react-router-dom'
 
 function Authors() {
-    let {path,url} = useRouteMatch();
+    let {url} = useRouteMatch();
     /**
      * This renders the list of authors page.
      * It makes a get request to the authors api end point and saves
@@ -59,9 +55,11 @@ function Authors() {
             else{
                 return(
                     <li key = {author.id.toString()}>
-                        <Link to={`${url}/${parseInt(author.id)}`}>
-                            <AuthorListItem key = {author.id} item = {author} />
-                        </Link>
+                        <AuthorListItem 
+                            key = {author.id} 
+                            item = {author} 
+                            linksto = {`${url}/${parseInt(author.id)}`} 
+                        />
                     </li>
                 ) 
             }

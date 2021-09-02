@@ -1,9 +1,9 @@
-import React, {useEffect, useState} from 'react'
+import React, {useContext} from 'react'
 import {
     Link,
     useRouteMatch
 } from "react-router-dom"
-import jwt_decode from "jwt-decode";
+import {AuthContext} from "../contexts/AuthContext"
 
 
 function AuthorListItem(props) {
@@ -12,20 +12,9 @@ function AuthorListItem(props) {
      * Renders out the details to be displayed on the author list page
      */
     const {url} = useRouteMatch()
-    // const [isLibrarian,setIsLibrarian] = useState(false)
-
-    // useEffect(() =>{
-    //     if (localStorage.getItem("access_token")){
-    //         let token = jwt_decode(localStorage.getItem("access_token"))
-    //         console.log(token)
-    //         if (token.isLibrarian == true){
-    //             setIsLibrarian(true)
-    //         }
-    //     }
-    // },[])
+    const {isLibrarian} = useContext(AuthContext)
 
     function librarianLinks(){
-        console.log("Here")
         return (
             <>
                 <Link to={`${url}/${parseInt(props.item.id)}/update`} style={{color:'orange'}}>
@@ -40,6 +29,7 @@ function AuthorListItem(props) {
 
     return (
         <>
+        <Link to={props.linksto}>
             {props.item.last_name},
             {props.item.first_name}
             <span>
@@ -55,7 +45,8 @@ function AuthorListItem(props) {
                 </span>
             {")"}
             </span>
-            {localStorage.getItem('isLibrarian') == "true"? librarianLinks(): null}
+        </Link>
+            {isLibrarian === true? librarianLinks(): null}
         </>
     )
 }

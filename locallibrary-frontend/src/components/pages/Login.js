@@ -1,17 +1,18 @@
-import React, {useState} from 'react'
+import React, {useState,useContext} from 'react'
 import axiosInstance from "../../axios"
 import {useHistory} from 'react-router-dom'
 import jwt_decode from 'jwt-decode'
+import { AuthContext } from '../../contexts/AuthContext'
 
 function Login() {
+    const {LoginFunction} = useContext(AuthContext)
+
     const history = useHistory()
     const [userName, setUserName] = useState("")
     const [password, setPassword] = useState("")
 
     function handleSubmit(event){
         event.preventDefault();
-        console.log(userName)
-        console.log(password)
         const data = {
             username: userName,
             password: password
@@ -21,11 +22,7 @@ function Login() {
             localStorage.setItem('access_token',res.data.access)
             localStorage.setItem('refresh_token',res.data.refresh)
             const decoded_token = jwt_decode(localStorage.getItem("access_token"))
-            localStorage.setItem('user_id',decoded_token.user_id)
-            localStorage.setItem('isLibrarian',decoded_token.isLibrarian)
-            localStorage.setItem('isLoggedIn',true)
-            console.log(localStorage.getItem("isLibrarian"))
-            console.log(localStorage.getItem('user_id'))
+            LoginFunction(decoded_token)
             axiosInstance.defaults.headers['Authorization'] = "Bearer " + localStorage.getItem('access_token')
             history.push('/')
         })

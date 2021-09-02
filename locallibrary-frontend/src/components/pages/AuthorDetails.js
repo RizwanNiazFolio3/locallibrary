@@ -1,9 +1,5 @@
 import React, {useEffect, useState} from 'react'
 import {
-    BrowserRouter as Router,
-    Switch,
-    Route,
-    Link,
     useParams
   } from "react-router-dom";
   
@@ -12,7 +8,6 @@ import {
 
 function AuthorDetails() {
     let {id} = useParams();
-    console.log(id)
 
     const [firstName,setFirstName] = useState("")
     const [lastName,setLastName] = useState("")
@@ -20,8 +15,6 @@ function AuthorDetails() {
     const [dateOfDeath,setDateOfDeath] = useState("")
 
     useEffect(() => {
-        
-        console.log("catalog/api/authors/")
         axiosInstance.get("/catalog/api/authors/"+id)
         .then(response =>{
             setFirstName(response.data.first_name)
@@ -29,7 +22,8 @@ function AuthorDetails() {
             setDateOfBirth(response.data.date_of_birth)
             setDateOfDeath(response.data.date_of_death)
         })
-    },[])
+    },[id])
+    
     return (
         <div>
             <h1>Author: {lastName}, {firstName}</h1>
