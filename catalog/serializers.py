@@ -49,11 +49,6 @@ class HomePageSerializer(serializers.Serializer):
     num_lotr_books = serializers.IntegerField()
     num_authors = serializers.IntegerField()
 
-class BookNameSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Book
-        fields = ('title')
-
 class BookInstanceSerializer(serializers.ModelSerializer):
     book = serializers.StringRelatedField()
     borrower = serializers.StringRelatedField()
