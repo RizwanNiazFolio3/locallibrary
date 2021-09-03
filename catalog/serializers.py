@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from catalog.models import Author
+from rest_framework.relations import StringRelatedField
+from catalog.models import Author, BookInstance, Book
 from django.contrib.auth.models import User, Group
 
 class AuthorSerializer(serializers.ModelSerializer):
@@ -47,3 +48,16 @@ class HomePageSerializer(serializers.Serializer):
     num_fantasy_genres = serializers.IntegerField()
     num_lotr_books = serializers.IntegerField()
     num_authors = serializers.IntegerField()
+
+class BookNameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Book
+        fields = ('title')
+
+class BookInstanceSerializer(serializers.ModelSerializer):
+    book = serializers.StringRelatedField()
+    borrower = serializers.StringRelatedField()
+    class Meta:
+        model = BookInstance
+        fields = ['book','due_back','borrower']
+    

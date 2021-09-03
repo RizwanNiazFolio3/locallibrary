@@ -1,12 +1,19 @@
 from catalog.models import Author, Book, BookInstance, Genre
 from rest_framework import generics, viewsets, permissions
-from .serializers import AuthorSerializer, RegisterSerializer, UserSerializer, RegisterLibrarianSerializer, HomePageSerializer
-from .permissions import IsLibrarian #importing our custom permission
+from .serializers import (
+    AuthorSerializer, 
+    RegisterSerializer, 
+    UserSerializer, 
+    RegisterLibrarianSerializer, 
+    HomePageSerializer,
+    BookInstanceSerializer,
+)
+from .permissions import IsLibrarian, JWT_authenticator #importing our custom permission
 from rest_framework.response import Response
 from django.contrib.auth.models import User
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.views import  APIView
-
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 class AuthorViewSet(viewsets.ModelViewSet):
     queryset = Author.objects.all()
@@ -86,4 +93,32 @@ class HomePageApiView(APIView):
 
         return Response(result)
 
+class UserBorrowedBooksApiView(APIView):
+    permission_classes = [
+        permissions.IsAuthenticated
+    ]
+
+    serializer_class = BookInstanceSerializer
+    JWT_authenticator = JWTAuthentication()
+
+    # def _get_username(self,request):
+    #     # request_header = JWTAuthentication.get_header(request = request)
+    #     # raw_token = JWTAuthentication.get_raw_token(request_header)
+    #     # validated_token = JWTAuthentication.get_validated_token(raw_token)
+    #     # user_id = JWTAuthentication.get_user(validated_token)
+    #     user_id, _ = JWTAuthentication.authenticate(request)
+
+    #     user_name = User.objects.get(pk=user_id)
+    #     return user_name
+
+
+    def get(self, request):
+        print(request)
+        user, _ = self.JWT_authenticator.authenticate(request)
+        #user_name = User.objects.get(pk=user_id)
+        query_set = BookInstance.objects.filter(borrower=user).filter(status__exact='o').order_by('due_back')
+        serializer = self.serializer_class(query_set,many=True)
+        print(query_set)
+
+        return Response(serializer.data)
 

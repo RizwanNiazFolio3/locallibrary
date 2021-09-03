@@ -1,7 +1,14 @@
 from django.urls import path
 from . import views
 from rest_framework import routers
-from .api  import AuthorViewSet, RegisterApiView, BlacklistRefreshView, RegisterLibrarianApiView, HomePageApiView
+from .api  import (
+    AuthorViewSet, 
+    RegisterApiView, 
+    BlacklistRefreshView, 
+    RegisterLibrarianApiView, 
+    HomePageApiView,
+    UserBorrowedBooksApiView,
+)
 from rest_framework_simplejwt.views import TokenRefreshView
 from . import custom_tokens
 
@@ -28,7 +35,8 @@ urlpatterns = [
     path('api/register',RegisterApiView.as_view(), name='user-register-api'),#View needed to create
     path('api/logout', BlacklistRefreshView.as_view(), name="logout"),#API used to blacklist refresh token
     path('api/register-librarian', RegisterLibrarianApiView.as_view(), name='librarian-register-api'),#API used to register librarians
-    path('api/home', HomePageApiView.as_view(),name = 'home-page')
+    path('api/home', HomePageApiView.as_view(),name = 'home-page'),
+    path('api/mybooks', UserBorrowedBooksApiView.as_view(), name='mybooks-api'),
 ]
 
 urlpatterns += router.urls
