@@ -4,6 +4,8 @@ import jwt_decode from "jwt-decode";
 
 export const AuthContext = createContext();
 
+
+
 function AuthContextProvider({children}){
     /**
      * This context is where we store the state details as they pertain to the current user

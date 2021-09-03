@@ -6,7 +6,7 @@ import {AuthContext} from "../contexts/AuthContext"
 function Logout() {
     const history = useHistory()
 
-    const {LogoutFunction} = useContext(AuthContext)
+    const {LogoutFunction}: {LogoutFunction: () => {}} = useContext(AuthContext)
 
     //Upon logout, the access tokens and refresh tokens are deleted and the current refresh token is added to
     //A blacklist to prevent it from being used

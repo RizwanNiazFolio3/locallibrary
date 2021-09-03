@@ -6,22 +6,39 @@ import {
 import {AuthContext} from "../contexts/AuthContext"
 
 
-function AuthorListItem(props) {
+// The attributes of a single author
+export type AuthorAttributes = {
+    id: number;
+    first_name: string;
+    last_name: number;
+    date_of_birth: string;
+    date_of_death: string;
+}
+
+
+// The properties received by this component
+export type AuthorListItemProps = {
+    key: number; 
+    item: AuthorAttributes; 
+    linksto: string; 
+}
+
+function AuthorListItem(props: AuthorListItemProps) {
     /**
      * This takes an author object as a prop and
      * Renders out the details to be displayed on the author list page
      */
-    const {url} = useRouteMatch()
-    const {isLibrarian} = useContext(AuthContext)
+    const {url}: {url: string} = useRouteMatch()
+    const {isLibrarian}: {isLibrarian: boolean} = useContext(AuthContext)
 
     //This function runs if the current user is a librarian. i.e has permission to edit or delete an authors details
     function librarianLinks(){
         return (
             <>
-                <Link to={`${url}/${parseInt(props.item.id)}/update`} style={{color:'orange'}}>
+                <Link to={`${url}/${props.item.id}/update`} style={{color:'orange'}}>
                     {" "}Update{" "}
                 </Link>
-                <Link to={`${url}/${parseInt(props.item.id)}/delete`} style={{color:'red'}}>
+                <Link to={`${url}/${props.item.id}/delete`} style={{color:'red'}}>
                     Delete 
                 </Link>
             </>
