@@ -2,15 +2,10 @@ import React, {useState,useContext} from 'react'
 import axiosInstance from "../../axios"
 import {useHistory} from 'react-router-dom'
 import jwt_decode from 'jwt-decode'
-import { AuthContext } from '../../contexts/AuthContext'
+import { AuthContext, DecodedToken } from '../../contexts/AuthContext'
 
 
-// The attributes of decoded token
-type DecodedToken = {
-    user_id: number;
-    isLibrarian: boolean;
-    isAuthenticated: boolean;
-}
+
 
 
 function Login() {
@@ -18,7 +13,7 @@ function Login() {
      * When the users credentials are authenticated, the refresh token and access token are stored in localstorage.
      * The details of the user are stored in state with the help of the useContext hook
      */
-    const {LoginFunction}: {LoginFunction: (arg0: DecodedToken) => {}} = useContext(AuthContext)
+    const {LoginFunction}: {LoginFunction: (arg0: DecodedToken) => void} = useContext(AuthContext)
 
     const history = useHistory()
     const [userName, setUserName]: [string, React.Dispatch<React.SetStateAction<string>>] = useState("")
