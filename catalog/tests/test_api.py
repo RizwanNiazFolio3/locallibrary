@@ -1,7 +1,13 @@
 from django.http import response
 from django.test import TestCase
 from rest_framework.test import APIClient, APITestCase
-from catalog.models import Author
+from catalog.models import (
+    Author, 
+    Book, 
+    BookInstance, 
+    Genre, 
+    Language,
+)
 import datetime
 from django.contrib.auth.models import User, Group
 
@@ -692,14 +698,323 @@ class RegisterLibrarianTest(APITestCase):
 
         self.assertLess(num_before_creation,num_after_creation)
 
+class HomePageApiTest(APITestCase):
+    def setUp(self):
+        #Create Users
+        test_user1 = User.objects.create_user(username='testuser1', password='1X<ISRUkw+tuK')
+        test_user2 = User.objects.create_user(username='testuser2', password='2HJ1vRV0Z&3iD')
+
+        #Give user 1 librarian permissions
+        test_user1.save()
+        Group.objects.create(name="Librarians")
+        librarian_group = Group.objects.get(name="Librarians")
+        librarian_group.user_set.add(test_user1)
+        test_user1.save()
+        test_user2.save()
+
+        #Create Authors
+        test_author = Author.objects.create(first_name='John', last_name='Smith')
+        test_author_2 = Author.objects.create(first_name='John', last_name='Doe')
+
+        #Create Genres
+        Genre.objects.create(name='Fantasy')
+        Genre.objects.create(name='High Fantasy')
+        Genre.objects.create(name='Science Fiction')
+
+        #Create Languages
+        test_language = Language.objects.create(name='English')
+
+        #Create Books
+        Book_list = []
+        Num_books_auth_1 = 4
+        for books in range(Num_books_auth_1):
+            test_book = Book.objects.create(
+                title='Book Title'+' '+ str(books),
+                summary='My book summary',
+                isbn='ABCDEF'+'1'+str(books),
+                author=test_author,
+                language=test_language,
+            )
+
+            Book_list.append(test_book)
 
 
+        Num_books_auth_2 = 3
+        for books in range(Num_books_auth_2):
+            test_book = Book.objects.create(
+                title='Book Title 2'+' '+ str(books),
+                summary='My book summary',
+                isbn='ABCDEFG'+'2'+str(books),
+                author=test_author_2,
+                language=test_language,
+            )
 
+            Book_list.append(test_book)
 
+        # Create genre as a post-step
+        genre_objects_for_book = Genre.objects.all()
 
+        for book in Book_list:
+            book.genre.set(genre_objects_for_book)
+            book.save()
 
+        # Create a BookInstance object for test_users
+        book_instance_list = []
 
+        for book_object in Book_list:
+            book_instance_1 = BookInstance.objects.create(
+                book = book_object,
+                imprint = 'Some Imprint',
+                status = 'a'
+            )
 
+            book_instance_2 = BookInstance.objects.create(
+                book = book_object,
+                imprint = 'Some Other Imprint',
+                status = 'a'
+            )
 
-    
+            book_instance_list.append(book_instance_1)
+            book_instance_list.append(book_instance_2)
+
+        #Setting the status of some books to be borrowed
+        return_date = datetime.date.today() + datetime.timedelta(days=5)
+        num_borrowed_books = 5
+        for i in range(num_borrowed_books):
+            borrowed_book = book_instance_list[i]
+            borrowed_book.due_back = return_date
+            borrowed_book.borrower = test_user1
+            borrowed_book.status = 'o'
+            borrowed_book.save()
+        
+        #Creating Lord of the Rings
+        Book.objects.create(
+            title='Lord of the rings',
+            summary='My book summary',
+            isbn='ABCDEFG',
+            author=test_author,
+            language=test_language,
+        )
+
+    def test_hompage_response_without_authorization(self):
+        '''Testing the response of the home page api'''
+        response = self.client.get('http://127.0.0.1:8000/catalog/api/home')
+        self.assertEqual(response.status_code,200)
+
+    def test_homepage_response_body(self):
+        '''Testing whether the homepage api shows the correct information'''
+        response = self.client.get(
+                                    'http://127.0.0.1:8000/catalog/api/home',
+                                    format = 'json')
+        response_body = response.json()
+
+        expected_response = {
+                                "num_books": 8,
+                                "num_instances": 14,
+                                "num_instances_available": 9,
+                                "num_authors": 2,
+                                "num_fantasy_genres": 2,
+                                "num_lotr_books": 1
+                            }
+
+        self.assertEqual(response_body,expected_response)
+
+    def test_homepage_response_with_librarian_authorization(self):
+        '''Testing the response when the user is authorized as a librarian and makes a GET request'''
+        user_credentials = {
+            "username": "testuser1",
+            "password": "1X<ISRUkw+tuK"
+        }
+
+        response = self.client.post(
+            'http://127.0.0.1:8000/catalog/api/token/',
+            user_credentials,
+            format="json"
+        )
+
+        response_body = response.json()
+        access_token = response_body['access']
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token}')
+        
+        response = self.client.get(
+            'http://127.0.0.1:8000/catalog/api/home',
+            format="json")
+        
+        self.assertEqual(response.status_code,200)
+
+    def test_homepage_response_with_normal_authorization(self):
+        '''Testing the response for a GET request from a non librarian user'''
+        user_credentials = {
+            "username": "testuser2",
+            "password": "2HJ1vRV0Z&3iD"
+        }
+
+        response = self.client.post(
+            'http://127.0.0.1:8000/catalog/api/token/',
+            user_credentials,
+            format="json"
+        )
+
+        response_body = response.json()
+        access_token = response_body['access']
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token}')
+        
+        response = self.client.get(
+            'http://127.0.0.1:8000/catalog/api/home',
+            format="json")
+        
+        self.assertEqual(response.status_code,200)
+
+    def test_homepage_post_response(self):
+        '''Testing the response for a POST request'''
+        response = self.client.post('http://127.0.0.1:8000/catalog/api/home')
+        self.assertEqual(response.status_code,405)
+
+    def test_homepage_put_response(self):
+        '''Testing the response for a PUT request'''
+        response = self.client.put('http://127.0.0.1:8000/catalog/api/home')
+        self.assertEqual(response.status_code,405)
+
+    def test_homepage_delete_response(self):
+        '''Testing the response for a DELETE request'''
+        response = self.client.delete('http://127.0.0.1:8000/catalog/api/home')
+        self.assertEqual(response.status_code,405)
+
+    def test_homepage_post_response_with_librarian_authorization(self):
+        '''Testing the response for a POST request whent he user is a librarian'''
+        user_credentials = {
+            "username": "testuser1",
+            "password": "1X<ISRUkw+tuK"
+        }
+
+        response = self.client.post(
+            'http://127.0.0.1:8000/catalog/api/token/',
+            user_credentials,
+            format="json"
+        )
+
+        response_body = response.json()
+        access_token = response_body['access']
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token}')
+        
+        response = self.client.post(
+            'http://127.0.0.1:8000/catalog/api/home',
+            format="json")
+        
+        self.assertEqual(response.status_code,405)
+
+    def test_homepage_put_response_with_librarian_authorization(self):
+        '''Testing the response for a PUT request when the user is a librarian'''
+        user_credentials = {
+            "username": "testuser1",
+            "password": "1X<ISRUkw+tuK"
+        }
+
+        response = self.client.post(
+            'http://127.0.0.1:8000/catalog/api/token/',
+            user_credentials,
+            format="json"
+        )
+
+        response_body = response.json()
+        access_token = response_body['access']
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token}')
+        
+        response = self.client.put(
+            'http://127.0.0.1:8000/catalog/api/home',
+            format="json")
+        
+        self.assertEqual(response.status_code,405)
+
+    def test_homepage_delete_response_with_librarian_authorization(self):
+        '''Testing the response for a DELETE request with Librarian Authorization'''
+        user_credentials = {
+            "username": "testuser1",
+            "password": "1X<ISRUkw+tuK"
+        }
+
+        response = self.client.post(
+            'http://127.0.0.1:8000/catalog/api/token/',
+            user_credentials,
+            format="json"
+        )
+
+        response_body = response.json()
+        access_token = response_body['access']
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token}')
+        
+        response = self.client.delete(
+            'http://127.0.0.1:8000/catalog/api/home',
+            format="json")
+        
+        self.assertEqual(response.status_code,405)
+
+    def test_homepage_post_response_with_normal_authorization(self):
+        '''Testing the response for POST request when the user is authorized'''
+        user_credentials = {
+            "username": "testuser2",
+            "password": "2HJ1vRV0Z&3iD"
+        }
+
+        response = self.client.post(
+            'http://127.0.0.1:8000/catalog/api/token/',
+            user_credentials,
+            format="json"
+        )
+
+        response_body = response.json()
+        access_token = response_body['access']
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token}')
+        
+        response = self.client.post(
+            'http://127.0.0.1:8000/catalog/api/home',
+            format="json")
+        
+        self.assertEqual(response.status_code,405)
+
+    def test_homepage_put_response_with_normal_authorization(self):
+        '''Testing the response for a PUT request when the user is authorized'''
+        user_credentials = {
+            "username": "testuser2",
+            "password": "2HJ1vRV0Z&3iD"
+        }
+
+        response = self.client.post(
+            'http://127.0.0.1:8000/catalog/api/token/',
+            user_credentials,
+            format="json"
+        )
+
+        response_body = response.json()
+        access_token = response_body['access']
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token}')
+        
+        response = self.client.put(
+            'http://127.0.0.1:8000/catalog/api/home',
+            format="json")
+        
+        self.assertEqual(response.status_code,405)
+
+    def test_homepage_delete_response_with_normal_authorization(self):
+        '''Testing the response for a DELETE request when the user is authorized'''
+        user_credentials = {
+            "username": "testuser2",
+            "password": "2HJ1vRV0Z&3iD"
+        }
+
+        response = self.client.post(
+            'http://127.0.0.1:8000/catalog/api/token/',
+            user_credentials,
+            format="json"
+        )
+
+        response_body = response.json()
+        access_token = response_body['access']
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token}')
+        
+        response = self.client.delete(
+            'http://127.0.0.1:8000/catalog/api/home',
+            format="json")
+        
+        self.assertEqual(response.status_code,405)
 
