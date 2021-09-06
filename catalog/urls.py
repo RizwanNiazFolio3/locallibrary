@@ -4,8 +4,7 @@ from rest_framework import routers
 from .api  import AuthorViewSet, RegisterApiView, BlacklistRefreshView, RegisterLibrarianApiView, HomePageApiView
 from rest_framework_simplejwt.views import TokenRefreshView
 from . import custom_tokens
-from .api  import AuthorViewSet
-from .book_api  import BookViewSet
+from .api  import AuthorViewSet, BookViewSet
 
 
 router = routers.DefaultRouter()
