@@ -8,12 +8,14 @@ from .api  import (
     RegisterLibrarianApiView, 
     HomePageApiView,
     UserBorrowedBooksApiView,
+    AllBorrowedBooksApiViewset,
 )
 from rest_framework_simplejwt.views import TokenRefreshView
 from . import custom_tokens
 
 router = routers.DefaultRouter()
 router.register('api/authors',AuthorViewSet,'author-api')
+router.register('api/borrowed',AllBorrowedBooksApiViewset, 'borrowed-books-api')
 
 urlpatterns = [
     path('', views.index, name='index'),

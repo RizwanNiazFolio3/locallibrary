@@ -54,5 +54,5 @@ class BookInstanceSerializer(serializers.ModelSerializer):
     borrower = serializers.StringRelatedField()
     class Meta:
         model = BookInstance
-        fields = ['book','due_back','borrower']
+        fields = ['id','book','due_back','borrower']
     

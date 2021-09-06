@@ -1,5 +1,11 @@
+from rest_framework.serializers import ModelSerializer
 from catalog.models import Author, Book, BookInstance, Genre
-from rest_framework import generics, viewsets, permissions
+from rest_framework import (
+    generics, 
+    viewsets, 
+    permissions, 
+    mixins,
+)
 from .serializers import (
     AuthorSerializer, 
     RegisterSerializer, 
@@ -108,3 +114,16 @@ class UserBorrowedBooksApiView(APIView):
 
         return Response(serializer.data)
 
+class AllBorrowedBooksApiViewset(
+    mixins.RetrieveModelMixin,
+    mixins.ListModelMixin,
+    mixins.UpdateModelMixin,
+    viewsets.GenericViewSet
+    ):
+
+    permission_classes = [
+        IsLibrarian,
+    ]
+
+    queryset = BookInstance.objects.filter(status__exact = 'o').order_by('due_back')
+    serializer_class = BookInstanceSerializer
