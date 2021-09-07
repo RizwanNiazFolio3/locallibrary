@@ -1,10 +1,11 @@
 from django.urls import path
 from . import views
 from rest_framework import routers
-from .api  import AuthorViewSet
+from .api  import AuthorViewSet, LoginView, BookViewSet
 
 router = routers.DefaultRouter()
 router.register('api/authors',AuthorViewSet,'author-api')
+router.register('api/books',BookViewSet,'book-api')
 
 urlpatterns = [
     path('', views.index, name='index'),
@@ -21,6 +22,8 @@ urlpatterns = [
     path('book/create/', views.BookCreate.as_view(), name='book-create'),
     path('book/<int:pk>/update/', views.BookUpdate.as_view(), name='book-update'),
     path('book/<int:pk>/delete/', views.BookDelete.as_view(), name='book-delete'),
+    path('api/login', LoginView.as_view(), name='user-login'),
+
 ]
 
 urlpatterns += router.urls
