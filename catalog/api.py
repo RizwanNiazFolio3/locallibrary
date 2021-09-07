@@ -14,7 +14,7 @@ from .serializers import (
     HomePageSerializer,
     BookInstanceSerializer,
 )
-from .permissions import IsLibrarian, JWT_authenticator #importing our custom permission
+from .permissions import IsLibrarian, OnlyLibrarians, JWT_authenticator #importing our custom permissions
 from rest_framework.response import Response
 from django.contrib.auth.models import User
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -122,7 +122,7 @@ class AllBorrowedBooksApiViewset(
     ):
 
     permission_classes = [
-        IsLibrarian,
+        OnlyLibrarians,
     ]
 
     queryset = BookInstance.objects.filter(status__exact = 'o').order_by('due_back')
