@@ -1018,3 +1018,449 @@ class HomePageApiTest(APITestCase):
         
         self.assertEqual(response.status_code,405)
 
+class UserBorrowedBooksAPIViewTest(APITestCase):
+    def setUp(self):
+        #Creating Users
+        test_user1 = User.objects.create_user(username='testuser1', password='1X<ISRUkw+tuK')
+        test_user2 = User.objects.create_user(username='testuser2', password='2HJ1vRV0Z&3iD')
+        test_user3 = User.objects.create_user(username='testuser3', password='SomeStrongPassword')
+
+        #One of the users is a librarian
+        test_user1.save()
+        Group.objects.create(name="Librarians")
+        librarian_group = Group.objects.get(name="Librarians")
+        librarian_group.user_set.add(test_user1)
+        test_user1.save()
+        test_user2.save()
+        test_user3.save()
+
+        #Create Authors
+        test_author = Author.objects.create(first_name='John', last_name='Smith')
+        test_author_2 = Author.objects.create(first_name='John', last_name='Doe')
+
+        #Create language
+        test_language = Language.objects.create(name='English')
+
+        #create Books
+        book_1 = Book.objects.create(
+            title='Book Title 1',
+            summary='My book summary',
+            isbn='ABCDEF 1',
+            author=test_author,
+            language=test_language
+        )
+
+        book_2 = Book.objects.create(
+            title='Book Title 2',
+            summary='My book summary',
+            isbn='ABCDEF 2',
+            author=test_author,
+            language=test_language,
+        )
+
+        book_3 = Book.objects.create(
+            title='Book Title 3',
+            summary='My book summary',
+            isbn='ABCDEF 3',
+            author=test_author_2,
+            language=test_language,
+        )
+
+        '''Creating Book Instances'''
+        book_1_instance_list = []
+        book_2_instance_list = []
+        book_3_instance_list = []
+        #Creating 2 instances of the first book
+        for i in range(2):
+            bookinstance_1 = BookInstance.objects.create(
+                    id = 'e06f04a7-0ab7-4a43-b3b9-d288196393e'+str(i),
+                    book = book_1,
+                    imprint = 'Some Imprint',
+                    status = 'a'
+            )
+            book_1_instance_list.append(bookinstance_1)
+
+        #Creating 3 instances of the second book
+        for i in range(3):
+            bookinstance_1 = BookInstance.objects.create(
+                id = '99ea43f7-5b60-4031-8a69-9e613790587'+str(i),
+                book = book_2,
+                imprint = 'Some imprint',
+                status = 'a'
+            )
+            book_2_instance_list.append(bookinstance_1)
+
+        #Creating 2 instances of the third book
+        for i in range(2):
+            bookinstance_1 = BookInstance.objects.create(
+                id = '4f147358-7209-4ca5-ac7b-386902bdf19'+str(i),
+                book = book_3,
+                imprint = 'Some imprint',
+                status = 'a'
+            )
+            book_3_instance_list.append(bookinstance_1)
+
+        '''Setting the status of books 1 and 2 to being borrowed by user 1'''
+        #This instance is due in 5 days
+        return_date_1 = datetime.date.today() + datetime.timedelta(days=5)
+        user_1_borrowed_book_1 = book_1_instance_list[0]
+        user_1_borrowed_book_1.borrower = test_user1
+        user_1_borrowed_book_1.status = 'o'
+        user_1_borrowed_book_1.due_back = return_date_1
+        user_1_borrowed_book_1.save()
+
+        #This instance is due in 3 days
+        return_date_2 = datetime.date.today() + datetime.timedelta(days=3)
+        user_1_borrowed_book_2 = book_2_instance_list[0]
+        user_1_borrowed_book_2.borrower = test_user1
+        user_1_borrowed_book_2.status = 'o'
+        user_1_borrowed_book_2.due_back = return_date_2
+        user_1_borrowed_book_2.save()
+
+        '''Setting the status of one of the instances of book 2 to borrowed by user 2'''
+        #This instance is due in 4 days
+        return_date_3 = datetime.date.today() + datetime.timedelta(days=4)
+        user_2_borrowed_book_2 = book_2_instance_list[1]
+        user_2_borrowed_book_2.borrower = test_user2
+        user_2_borrowed_book_2.status = 'o'
+        user_2_borrowed_book_2.due_back = return_date_3
+        user_2_borrowed_book_2.save()
+
+    def test_get_my_books_without_authorization(self):
+        '''Trying to get books borrowed without giving authentication credentials'''
+        response = self.client.get('http://127.0.0.1:8000/catalog/api/mybooks')
+        self.assertEqual(response.status_code,401)
+
+    def test_put_my_books_without_authorization(self):
+        '''Trying to perform a PUT requests without authorization'''
+        response = self.client.put('http://127.0.0.1:8000/catalog/api/mybooks')
+        self.assertEqual(response.status_code,401)
+
+    def test_post_my_books_without_authorization(self):
+        '''Tests trying to perform POST request without authorization'''
+        response = self.client.post('http://127.0.0.1:8000/catalog/api/mybooks')
+        self.assertEqual(response.status_code,401)
+
+    def test_delete_my_books_without_authorization(self):
+        '''Tests Trying to perform DELETE request without authorization'''
+        response = self.client.delete('http://127.0.0.1:8000/catalog/api/mybooks')
+        self.assertEqual(response.status_code,401)
+
+    def test_get_my_books_response_user_1(self):
+        '''Tests the response of trying to get books borrowed by user 1'''
+        user_credentials = {
+            "username": "testuser1",
+            "password": "1X<ISRUkw+tuK"
+        }
+
+        response = self.client.post(
+            'http://127.0.0.1:8000/catalog/api/token/',
+            user_credentials,
+            format="json"
+        )
+
+        response_body = response.json()
+        access_token = response_body['access']
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token}')
+        
+        response = self.client.get(
+            'http://127.0.0.1:8000/catalog/api/mybooks',
+            format="json")
+        
+        self.assertEqual(response.status_code,200)
+
+
+    def test_get_my_books_response_body_user_1(self):
+        '''Tests the response of trying to get books borrowed by user 1'''
+        user_credentials = {
+            "username": "testuser1",
+            "password": "1X<ISRUkw+tuK"
+        }
+
+        response = self.client.post(
+            'http://127.0.0.1:8000/catalog/api/token/',
+            user_credentials,
+            format="json"
+        )
+
+        response_body = response.json()
+        access_token = response_body['access']
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token}')
+        
+        response = self.client.get(
+            'http://127.0.0.1:8000/catalog/api/mybooks',
+            format="json")
+        
+        response_body = response.json()
+
+        return_date_1 = (datetime.date.today() + datetime.timedelta(days=5)).strftime('%Y-%m-%d')
+        return_date_2 = (datetime.date.today() + datetime.timedelta(days=3)).strftime('%Y-%m-%d')
+
+        expected_response = [
+            {
+                "id": '99ea43f7-5b60-4031-8a69-9e613790587'+'0',
+                "book": 'Book Title 2',
+                "due_back": return_date_2,
+                "borrower": 'testuser1'
+            }, 
+            {
+                "id": 'e06f04a7-0ab7-4a43-b3b9-d288196393e'+'0',
+                "book": 'Book Title 1',
+                "due_back": return_date_1,
+                "borrower": 'testuser1'
+            }
+        ]
+
+        self.assertEqual(response_body,expected_response)
+
+    def test_post_my_books_response_user_1(self):
+        '''Tests the response of trying to post books borrowed by user 1'''
+        user_credentials = {
+            "username": "testuser1",
+            "password": "1X<ISRUkw+tuK"
+        }
+
+        response = self.client.post(
+            'http://127.0.0.1:8000/catalog/api/token/',
+            user_credentials,
+            format="json"
+        )
+
+        response_body = response.json()
+        access_token = response_body['access']
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token}')
+        
+        response = self.client.post(
+            'http://127.0.0.1:8000/catalog/api/mybooks',
+            format="json")
+        
+        self.assertEqual(response.status_code,405)
+
+    def test_put_my_books_response_user_1(self):
+        '''Tests the response of trying to PUT books borrowed by user 1'''
+        user_credentials = {
+            "username": "testuser1",
+            "password": "1X<ISRUkw+tuK"
+        }
+
+        response = self.client.post(
+            'http://127.0.0.1:8000/catalog/api/token/',
+            user_credentials,
+            format="json"
+        )
+
+        response_body = response.json()
+        access_token = response_body['access']
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token}')
+        
+        response = self.client.put(
+            'http://127.0.0.1:8000/catalog/api/mybooks',
+            format="json")
+        
+        self.assertEqual(response.status_code,405)
+
+    def test_delete_my_books_response_user_1(self):
+        '''Tests the response of trying to DELETE books borrowed by user 1'''
+        user_credentials = {
+            "username": "testuser1",
+            "password": "1X<ISRUkw+tuK"
+        }
+
+        response = self.client.post(
+            'http://127.0.0.1:8000/catalog/api/token/',
+            user_credentials,
+            format="json"
+        )
+
+        response_body = response.json()
+        access_token = response_body['access']
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token}')
+        
+        response = self.client.delete(
+            'http://127.0.0.1:8000/catalog/api/mybooks',
+            format="json")
+        
+        self.assertEqual(response.status_code,405)
+        
+    def test_get_my_books_response_user_2(self):
+        '''Tests the response of trying to get books borrowed by user 2'''
+        user_credentials = {
+            "username": "testuser2",
+            "password": "2HJ1vRV0Z&3iD"
+        }
+
+        response = self.client.post(
+            'http://127.0.0.1:8000/catalog/api/token/',
+            user_credentials,
+            format="json"
+        )
+
+        response_body = response.json()
+        access_token = response_body['access']
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token}')
+        
+        response = self.client.get(
+            'http://127.0.0.1:8000/catalog/api/mybooks',
+            format="json")
+        
+        self.assertEqual(response.status_code,200)
+
+    def test_get_my_books_response_body_user_2(self):
+        '''Tests the response body of trying to get books borrowed by user 2'''
+        user_credentials = {
+            "username": "testuser2",
+            "password": "2HJ1vRV0Z&3iD"
+        }
+
+        response = self.client.post(
+            'http://127.0.0.1:8000/catalog/api/token/',
+            user_credentials,
+            format="json"
+        )
+
+        response_body = response.json()
+        access_token = response_body['access']
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token}')
+        
+        response = self.client.get(
+            'http://127.0.0.1:8000/catalog/api/mybooks',
+            format="json")
+        
+        response_body = response.json()
+
+        return_date_1 = (datetime.date.today() + datetime.timedelta(days=4)).strftime('%Y-%m-%d')
+
+        expected_response = [
+            {
+                "id": '99ea43f7-5b60-4031-8a69-9e613790587'+'1',
+                "book": 'Book Title 2',
+                "due_back": return_date_1,
+                "borrower": 'testuser2'
+            }
+        ]
+
+        self.assertEqual(response_body,expected_response)
+    
+    def test_post_my_books_response_user_2(self):
+        '''Tests the response of trying to post books borrowed by user 2'''
+        user_credentials = {
+            "username": "testuser2",
+            "password": "2HJ1vRV0Z&3iD"
+        }
+
+        response = self.client.post(
+            'http://127.0.0.1:8000/catalog/api/token/',
+            user_credentials,
+            format="json"
+        )
+
+        response_body = response.json()
+        access_token = response_body['access']
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token}')
+        
+        response = self.client.post(
+            'http://127.0.0.1:8000/catalog/api/mybooks',
+            format="json")
+        
+        self.assertEqual(response.status_code,405)
+
+    def test_put_my_books_response_user_2(self):
+        '''Tests the response of trying to put books borrowed by user 2'''
+        user_credentials = {
+            "username": "testuser2",
+            "password": "2HJ1vRV0Z&3iD"
+        }
+
+        response = self.client.post(
+            'http://127.0.0.1:8000/catalog/api/token/',
+            user_credentials,
+            format="json"
+        )
+
+        response_body = response.json()
+        access_token = response_body['access']
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token}')
+        
+        response = self.client.put(
+            'http://127.0.0.1:8000/catalog/api/mybooks',
+            format="json")
+        
+        self.assertEqual(response.status_code,405)
+
+    def test_delete_my_books_response_user_2(self):
+        '''Tests the response of trying to delete books borrowed by user 2'''
+        user_credentials = {
+            "username": "testuser2",
+            "password": "2HJ1vRV0Z&3iD"
+        }
+
+        response = self.client.post(
+            'http://127.0.0.1:8000/catalog/api/token/',
+            user_credentials,
+            format="json"
+        )
+
+        response_body = response.json()
+        access_token = response_body['access']
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token}')
+        
+        response = self.client.delete(
+            'http://127.0.0.1:8000/catalog/api/mybooks',
+            format="json")
+        
+        self.assertEqual(response.status_code,405)
+
+    def test_get_my_books_response_user_3(self):
+        '''Tests the response of trying to get books borrowed by user 1'''
+        user_credentials = {
+            "username": "testuser3",
+            "password": "SomeStrongPassword"
+        }
+
+        response = self.client.post(
+            'http://127.0.0.1:8000/catalog/api/token/',
+            user_credentials,
+            format="json"
+        )
+
+        response_body = response.json()
+        access_token = response_body['access']
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token}')
+        
+        response = self.client.get(
+            'http://127.0.0.1:8000/catalog/api/mybooks',
+            format="json")
+        
+        self.assertEqual(response.status_code,200)
+
+    def test_get_my_books_response_body_user_3(self):
+        '''Tests the response of trying to get books borrowed by user 1'''
+        user_credentials = {
+            "username": "testuser3",
+            "password": "SomeStrongPassword"
+        }
+
+        response = self.client.post(
+            'http://127.0.0.1:8000/catalog/api/token/',
+            user_credentials,
+            format="json"
+        )
+
+        response_body = response.json()
+        access_token = response_body['access']
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token}')
+        
+        response = self.client.get(
+            'http://127.0.0.1:8000/catalog/api/mybooks',
+            format="json")
+        
+        response_body = response.json()
+
+        expected_response = [
+        ]
+
+        self.assertEqual(response_body,expected_response)
+
+
+
+
