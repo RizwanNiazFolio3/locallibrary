@@ -34,7 +34,7 @@ class UserSerializer(serializers.ModelSerializer):
 class RegisterLibrarianSerializer(RegisterSerializer):
     '''The serializer to register other librarians'''
     #We must override the create method of the parent class so that it now allows us to the user being created to the librarian group
-    def create(self, validated_data):
+    def create(self, validated_data: dict) -> User:
         user = User.objects.create_user(validated_data['username'], password = validated_data['password'])
         librarian_group = Group.objects.get(name="Librarians")
         librarian_group.user_set.add(user)
