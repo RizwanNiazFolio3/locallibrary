@@ -3,6 +3,7 @@ from rest_framework import generics, viewsets, permissions
 from .serializers import AuthorSerializer, RegisterSerializer, UserSerializer, RegisterLibrarianSerializer
 from .permissions import IsLibrarian #importing our custom permission
 from rest_framework.response import Response
+from rest_framework.request import Request
 from django.contrib.auth.models import User
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.views import  APIView
@@ -22,7 +23,7 @@ class BlacklistRefreshView(APIView):
     permission_classes = [
         permissions.IsAuthenticated
     ]
-    def post(self, request):
+    def post(self, request: Request) -> Response:
         token = RefreshToken(request.data.get('refresh'))
         token.blacklist()
         return Response("Success")
