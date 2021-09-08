@@ -1,12 +1,13 @@
 from django.urls import path
 from . import views
 from rest_framework import routers
-from .api  import AuthorViewSet, RegisterApiView, BlacklistRefreshView, RegisterLibrarianApiView
+from .api  import AuthorViewSet, RegisterApiView, BlacklistRefreshView, RegisterLibrarianApiView, BookViewSet
 from rest_framework_simplejwt.views import TokenRefreshView
 from . import custom_tokens
 
 router = routers.DefaultRouter()
 router.register('api/authors',AuthorViewSet,'author-api')
+router.register('api/books',BookViewSet,'book-api')
 
 urlpatterns = [
     path('', views.index, name='index'),

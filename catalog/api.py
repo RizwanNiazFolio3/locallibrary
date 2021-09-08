@@ -1,12 +1,23 @@
-from catalog.models import Author
+from catalog.models import Author, Book
 from rest_framework import generics, viewsets, permissions
-from .serializers import AuthorSerializer, RegisterSerializer, UserSerializer, RegisterLibrarianSerializer
+from .serializers import AuthorSerializer, RegisterSerializer, UserSerializer, RegisterLibrarianSerializer, BookSerializer
 from .permissions import IsLibrarian #importing our custom permission
 from rest_framework.response import Response
 from rest_framework.request import Request
 from django.contrib.auth.models import User
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.views import  APIView
+
+
+class BookViewSet(viewsets.ModelViewSet):
+    """This viewset provides create, retrieve, update and delete apis for books"""
+
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+    
+    permission_classes = [
+        IsLibrarian
+    ]
 
 
 class AuthorViewSet(viewsets.ModelViewSet):
@@ -54,7 +65,4 @@ class RegisterLibrarianApiView(RegisterApiView):
     ]
 
     serializer_class = RegisterLibrarianSerializer
-
-
-
 

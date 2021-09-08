@@ -1,6 +1,7 @@
 from rest_framework import serializers
-from catalog.models import Author
+from catalog.models import Author, Book
 from django.contrib.auth.models import User, Group
+
 
 class AuthorSerializer(serializers.ModelSerializer):
     class Meta:
@@ -39,3 +40,11 @@ class RegisterLibrarianSerializer(RegisterSerializer):
         librarian_group = Group.objects.get(name="Librarians")
         librarian_group.user_set.add(user)
         return user
+class BookSerializer(serializers.ModelSerializer):
+    """This class converts model"""
+
+    class Meta:
+        model = Book
+        fields = '__all__'
+
+

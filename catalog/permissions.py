@@ -33,9 +33,3 @@ class IsLibrarian(permissions.BasePermission):
                     if request.user.groups.filter(name="Librarians"):
                         return True      
         return False
-
-
-
-
-
-
