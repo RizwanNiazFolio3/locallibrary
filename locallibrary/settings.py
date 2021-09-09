@@ -13,6 +13,12 @@ import os # needed by code below
 from pathlib import Path
 import dj_database_url
 from datetime import timedelta
+from locallibrary.jwt_settings import (
+    ACCESS_TOKEN_REFRESH_TIME,
+    REFRESH_TOKEN_LIFETIME,
+    SLIDING_TOKEN_LIFETIME,
+    SLIDING_TOKEN_REFRESH_LIFETIME,
+)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -174,8 +180,8 @@ REST_FRAMEWORK = {
 
 #these are the settings for the jwt's we will be using for authentication
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ACCESS_TOKEN_LIFETIME': ACCESS_TOKEN_REFRESH_TIME,
+    'REFRESH_TOKEN_LIFETIME': REFRESH_TOKEN_LIFETIME,
     'ROTATE_REFRESH_TOKENS': False,
     'BLACKLIST_AFTER_ROTATION': True,
     'UPDATE_LAST_LOGIN': False,
@@ -198,7 +204,7 @@ SIMPLE_JWT = {
     'JTI_CLAIM': 'jti',
 
     'SLIDING_TOKEN_REFRESH_EXP_CLAIM': 'refresh_exp',
-    'SLIDING_TOKEN_LIFETIME': timedelta(minutes=5),
-    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
+    'SLIDING_TOKEN_LIFETIME': SLIDING_TOKEN_LIFETIME,
+    'SLIDING_TOKEN_REFRESH_LIFETIME': SLIDING_TOKEN_REFRESH_LIFETIME,
 }
 
