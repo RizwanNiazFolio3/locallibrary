@@ -4,6 +4,7 @@ from rest_framework.test import APIClient, APITestCase
 from catalog.models import Author, Book, Genre
 import datetime
 from django.contrib.auth.models import User, Group
+from http import HTTPStatus
 
 class AuthorAPIViewTest(APITestCase):
     '''This class tests the author CRUD api'''
@@ -31,7 +32,7 @@ class AuthorAPIViewTest(APITestCase):
         #it would return status code 301 (moved permanently) and then redirect to the address with the forward slash
 
         response = self.client.get('http://127.0.0.1:8000/catalog/api/authors/')
-        self.assertEqual(response.status_code,200)
+        self.assertEqual(response.status_code,HTTPStatus.OK)
 
     def test_read_author_api_list_content(self):
         '''
@@ -64,7 +65,7 @@ class AuthorAPIViewTest(APITestCase):
     def test_read_author_id_api_response(self):
         '''Tests to see if the get request to author id 1 returns 200 or not'''
         response = self.client.get('http://127.0.0.1:8000/catalog/api/authors/1/')
-        self.assertEqual(response.status_code,200)
+        self.assertEqual(response.status_code,HTTPStatus.OK)
 
     def test_read_author_id_body(self):
         '''Tests the body of the get request to the author with id = 1'''
@@ -95,7 +96,7 @@ class AuthorAPIViewTest(APITestCase):
             format="json")
         
         #Checking status code 201 created
-        self.assertEqual(response.status_code,401)
+        self.assertEqual(response.status_code,HTTPStatus.UNAUTHORIZED)
 
     def test_create_author_response_with_authorization(self):
         '''This tests the create author response when user is authorized'''
@@ -124,7 +125,7 @@ class AuthorAPIViewTest(APITestCase):
             format="json")
         
         #Checking status code 201 created
-        self.assertEqual(response.status_code,201)
+        self.assertEqual(response.status_code,HTTPStatus.CREATED)
 
 
     def test_create_author_body(self):
@@ -176,7 +177,7 @@ class AuthorAPIViewTest(APITestCase):
             format="json")
         
         #Checking status code 401 unauthorized
-        self.assertEqual(response.status_code,401)
+        self.assertEqual(response.status_code,HTTPStatus.UNAUTHORIZED)
 
     def test_update_author_response_with_authorization(self):
         '''This tests the update author response when user is authorized'''
@@ -205,7 +206,7 @@ class AuthorAPIViewTest(APITestCase):
             format="json")
         
         #Checking status code 201 created
-        self.assertEqual(response.status_code,200)
+        self.assertEqual(response.status_code,HTTPStatus.OK)
         
 
     def test_update_author(self):
@@ -247,7 +248,7 @@ class AuthorAPIViewTest(APITestCase):
         response = self.client.delete('http://127.0.0.1:8000/catalog/api/authors/2/')
 
         #checking whether response was 401 unauthorized
-        self.assertEqual(response.status_code,401)
+        self.assertEqual(response.status_code,HTTPStatus.UNAUTHORIZED)
 
     def test_delete_author_response_with_authorization(self):
         '''This tests whether or not an author is deleted'''
@@ -270,7 +271,7 @@ class AuthorAPIViewTest(APITestCase):
         response = self.client.delete('http://127.0.0.1:8000/catalog/api/authors/2/')
 
         #204 means that the request completed but no reponse was returned
-        self.assertEqual(response.status_code,204)
+        self.assertEqual(response.status_code,HTTPStatus.NO_CONTENT)
         
 
     def test_author_was_deleted(self):
@@ -318,7 +319,7 @@ class RegisterUserTest(APITestCase):
             format="json"
         )
 
-        self.assertEqual(response.status_code,200)
+        self.assertEqual(response.status_code,HTTPStatus.OK)
 
     def test_create_existing_user_response(self):
         '''This tests the response when a user with an existing name is created'''
@@ -333,7 +334,7 @@ class RegisterUserTest(APITestCase):
             format="json"
         )
 
-        self.assertEqual(response.status_code,400)
+        self.assertEqual(response.status_code,HTTPStatus.BAD_REQUEST)
 
     def test_create_new_user_body(self):
         '''This tests the response body when new user is created'''
@@ -448,7 +449,7 @@ class RegisterLibrarianTest(APITestCase):
             format="json"
         )
 
-        self.assertEqual(response.status_code,401)
+        self.assertEqual(response.status_code,HTTPStatus.UNAUTHORIZED)
 
     def test_create_user_with_wrong_authorization(self):
         #Getting authorization credentials
@@ -477,7 +478,7 @@ class RegisterLibrarianTest(APITestCase):
             format="json"
         )
 
-        self.assertEqual(response.status_code,403)
+        self.assertEqual(response.status_code,HTTPStatus.FORBIDDEN)
 
     def test_user_is_librarian(self):
         '''This tests the response body when an existing user is created'''
@@ -543,7 +544,7 @@ class RegisterLibrarianTest(APITestCase):
             format="json"
         )
 
-        self.assertEqual(response.status_code,200)
+        self.assertEqual(response.status_code,HTTPStatus.OK)
 
     def test_create_existing_user_response(self):
         '''This tests the response when a user with an existing name is created'''
@@ -573,7 +574,7 @@ class RegisterLibrarianTest(APITestCase):
             format="json"
         )
 
-        self.assertEqual(response.status_code,400)
+        self.assertEqual(response.status_code,HTTPStatus.BAD_REQUEST)
 
     def test_create_new_user_body(self):
         '''This tests the response body when new user is created'''
@@ -721,14 +722,14 @@ class BookAPIViewTest(TestCase):
 
     def test_url_exists_at_desired_location(self):
         response = self.client.get('/catalog/api/books/')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_list_books_status(self):
         
         client = APIClient()
         response = client.get('http://127.0.0.1:8000/catalog/api/books/')
 
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_create_book_status(self):
         
@@ -759,14 +760,14 @@ class BookAPIViewTest(TestCase):
             format='json'
         )
 
-        self.assertEqual(response.status_code, 201) # 201 means object successfully created
+        self.assertEqual(response.status_code, HTTPStatus.CREATED) # 201 means object successfully created
 
     def test_get_book_using_id(self):
         
         client = APIClient()
         response = client.get('http://127.0.0.1:8000/catalog/api/books/1/')
 
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_delete_book_using_id(self):
         
@@ -791,7 +792,7 @@ class BookAPIViewTest(TestCase):
         response = client.delete('http://127.0.0.1:8000/catalog/api/books/1/')
 
         # Status code 204 means that the request completed successfully but no response was returned
-        self.assertEqual(response.status_code, 204)
+        self.assertEqual(response.status_code, HTTPStatus.NO_CONTENT)
 
     def test_update_book_using_id(self):
         
@@ -823,7 +824,7 @@ class BookAPIViewTest(TestCase):
             format='json'
         )
 
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, HTTPStatus.OK)
 
 
 
