@@ -13,6 +13,7 @@ from .serializers import (
     RegisterLibrarianSerializer, 
     HomePageSerializer,
     BookInstanceSerializer,
+    BookSerializer,
 )
 from .permissions import IsLibrarian, OnlyLibrarians, JWT_authenticator #importing our custom permissions
 from rest_framework.response import Response
@@ -127,3 +128,10 @@ class AllBorrowedBooksApiViewset(
 
     queryset = BookInstance.objects.filter(status__exact = 'o').order_by('due_back')
     serializer_class = BookInstanceSerializer
+
+class BookViewSet(viewsets.ModelViewSet):
+    """This viewset provides create, retrieve, update and delete apis for books"""
+
+
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer

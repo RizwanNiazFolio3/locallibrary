@@ -2,10 +2,21 @@ from rest_framework import serializers
 from rest_framework.relations import StringRelatedField
 from catalog.models import Author, BookInstance, Book
 from django.contrib.auth.models import User, Group
+from .models import Book
+
+
 
 class AuthorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Author
+        fields = '__all__'
+
+
+class BookSerializer(serializers.ModelSerializer):
+    """This class converts model"""
+
+    class Meta:
+        model = Book
         fields = '__all__'
 
 

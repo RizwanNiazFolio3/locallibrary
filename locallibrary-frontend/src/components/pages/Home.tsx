@@ -1,6 +1,18 @@
 import React, {useEffect, useState} from 'react'
 import axiosInstance from "../../axios"
 
+
+//After a successful api call, the data element should be populated as HomeData type
+type HomeData = {
+    num_authors: number;
+    num_books: number;
+    num_fantasy_genres: number;
+    num_instances: number;
+    num_instances_available: number;
+    num_lotr_books: number;
+}
+
+
 function Home() {
     /**
      * This displays the agregate data needed to be displayed at the home page
@@ -11,7 +23,14 @@ function Home() {
      * the home page was visited. This has not been implemented yet either.
      */
     //The state of the component is used to store the JSON data recieved fromt the api end point
-    const [data, setData] = useState("")
+    const [data, setData]: [HomeData, React.Dispatch<React.SetStateAction<HomeData>>] = useState({
+        num_authors: 0,
+        num_books: 0,
+        num_fantasy_genres: 0,
+        num_instances: 0,
+        num_instances_available: 0,
+        num_lotr_books: 0
+    })
 
     //This will make a get request to the api once when the page first loads up
     useEffect(() => {

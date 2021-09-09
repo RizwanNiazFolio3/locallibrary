@@ -12,10 +12,13 @@ from .api  import (
 )
 from rest_framework_simplejwt.views import TokenRefreshView
 from . import custom_tokens
+from .api  import AuthorViewSet, BookViewSet
+
 
 router = routers.DefaultRouter()
 router.register('api/authors',AuthorViewSet,'author-api')
 router.register('api/borrowed',AllBorrowedBooksApiViewset, 'borrowed-books-api')
+router.register('api/books',BookViewSet,'book-api')
 
 urlpatterns = [
     path('', views.index, name='index'),
