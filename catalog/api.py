@@ -1,13 +1,13 @@
+from catalog.models import Author, Book
+from rest_framework import generics, viewsets, permissions
+from .serializers import AuthorSerializer, RegisterSerializer, UserSerializer, RegisterLibrarianSerializer, BookSerializer
+from .permissions import IsLibrarian #importing our custom permission
 from rest_framework.response import Response
 from rest_framework.request import Request
-from catalog.models import Author, Book
-from rest_framework import viewsets, permissions
-from .serializers import AuthorSerializer, BookSerializer
-from .permissions import IsLibrarian #importing our custom permission
-from rest_framework.views import APIView
 from django.contrib.auth.models import User
-from rest_framework.exceptions import AuthenticationFailed
-import datetime, jwt
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.views import  APIView
+
 
 class BookViewSet(viewsets.ModelViewSet):
     """This viewset provides create, retrieve, update and delete apis for books"""
@@ -30,38 +30,39 @@ class AuthorViewSet(viewsets.ModelViewSet):
     serializer_class = AuthorSerializer
 
 
-class LoginView(APIView):
-    """Provides login api for user"""
-
+class BlacklistRefreshView(APIView):
+    permission_classes = [
+        permissions.IsAuthenticated
+    ]
     def post(self, request: Request) -> Response:
+        token = RefreshToken(request.data.get('refresh'))
+        token.blacklist()
+        return Response("Success")
 
-        username = request.data["username"]
-        password = request.data["password"]
 
-        # We fetch the user. Since username is unique, we can filter and fetch first
-        user = User.objects.filter(username=username).first()
+#Register API
+class RegisterApiView(generics.GenericAPIView):
+    '''This class allows us to register new users for the api'''
+    permission_classes = [
+        permissions.AllowAny
+    ]
+    serializer_class = RegisterSerializer
+    def post(self, request: Request) -> Response:
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        return Response({
+            "user": UserSerializer(user,    context=self.get_serializer_context()).data,
+            "message": "User Created Successfully.  Now perform Login to get your token",
+        })
 
-        if user is not None:
-            
-            if user.check_password(password):
+class RegisterLibrarianApiView(RegisterApiView):
+    '''API view used to register librarians'''
+    #overriding the permission_classes of the parent class to only give permission to librarians
+    #this is because we do not want normal users to be able to make librarians
+    permission_classes = [
+        IsLibrarian
+    ]
 
-                # Username and password are correct so creating jwt token
+    serializer_class = RegisterLibrarianSerializer
 
-                payload = {
-                    "id" : user.id,
-                    "exp" : datetime.datetime.utcnow() + datetime.timedelta(minutes=60), # Expires in 60 minutes
-                    "iat" : datetime.datetime.utcnow()
-                }
-
-                token = jwt.encode(payload, "secret", algorithm="HS256").decode("utf-8")
-
-                return Response({
-                    "user id" : user.id,
-                    "token" : token
-                })
-
-            else:
-                raise AuthenticationFailed("Incorrect password")
-            
-        else:
-            raise AuthenticationFailed("Incorrect username")

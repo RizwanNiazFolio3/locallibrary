@@ -12,6 +12,13 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 import os # needed by code below
 from pathlib import Path
 import dj_database_url
+from datetime import timedelta
+from locallibrary.jwt_settings import (
+    ACCESS_TOKEN_REFRESH_TIME,
+    REFRESH_TOKEN_LIFETIME,
+    SLIDING_TOKEN_LIFETIME,
+    SLIDING_TOKEN_REFRESH_LIFETIME,
+)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -43,7 +50,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'catalog.apps.CatalogConfig', #This object was created for us in /catalog/apps.py
     'rest_framework',
-    'corsheaders',
+    'rest_framework_simplejwt.token_blacklist',#Installing this app allows us to blacklist tokens that are no longer in use
 ]
 
 MIDDLEWARE = [
@@ -156,16 +163,48 @@ STATIC_URL = '/static/'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 
+#Adding a default, project level permission to the entire project.
+#This permission means that by default, the ModelPermissions specified in the views will be used
+#Otherwise, if the user is not authenticated i.e is anonymous, then only read methods will be used
+#This allows us to allow anonymous users without accounts to browse the list of authors or list of books
+#While at the same time, users who are part of the librarian group will be able to perform
+#Create, Delete, and Update operations as well.
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.AllowAny',
-    ),
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
+    ],
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
-    ),
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
 }
 
-CORS_ORIGIN_WHITELIST = (
-    # Only requests from this address will be allowed for accessing apis
-    'https://localhost:3000',
-)
+#these are the settings for the jwt's we will be using for authentication
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': ACCESS_TOKEN_REFRESH_TIME,
+    'REFRESH_TOKEN_LIFETIME': REFRESH_TOKEN_LIFETIME,
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'UPDATE_LAST_LOGIN': False,
+
+    'ALGORITHM': 'HS256',
+    'SIGNING_KEY': SECRET_KEY,
+    'VERIFYING_KEY': None,
+    'AUDIENCE': None,
+    'ISSUER': None,
+
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
+    'USER_ID_FIELD': 'id',
+    'USER_ID_CLAIM': 'user_id',
+    'USER_AUTHENTICATION_RULE': 'rest_framework_simplejwt.authentication.default_user_authentication_rule',
+
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+    'TOKEN_TYPE_CLAIM': 'token_type',
+
+    'JTI_CLAIM': 'jti',
+
+    'SLIDING_TOKEN_REFRESH_EXP_CLAIM': 'refresh_exp',
+    'SLIDING_TOKEN_LIFETIME': SLIDING_TOKEN_LIFETIME,
+    'SLIDING_TOKEN_REFRESH_LIFETIME': SLIDING_TOKEN_REFRESH_LIFETIME,
+}
+
