@@ -110,8 +110,10 @@ class AuthorAPIViewTest(APITestCase):
             "password": "1X<ISRUkw+tuK"
         }
 
+        token_url = reverse('token_obtain_pair')
+
         response = self.client.post(
-            'http://127.0.0.1:8000/catalog/api/token/',
+            token_url,
             user_credentials,
             format="json"
         )
@@ -141,8 +143,10 @@ class AuthorAPIViewTest(APITestCase):
             "password": "1X<ISRUkw+tuK"
         }
 
+        token_url = reverse('token_obtain_pair')
+
         response = self.client.post(
-            'http://127.0.0.1:8000/catalog/api/token/',
+            token_url,
             user_credentials,
             format="json"
         )
@@ -194,8 +198,10 @@ class AuthorAPIViewTest(APITestCase):
             "password": "1X<ISRUkw+tuK"
         }
 
+        token_url = reverse('token_obtain_pair')
+
         response = self.client.post(
-            'http://127.0.0.1:8000/catalog/api/token/',
+            token_url,
             user_credentials,
             format="json"
         )
@@ -226,8 +232,10 @@ class AuthorAPIViewTest(APITestCase):
             "password": "1X<ISRUkw+tuK"
         }
 
+        token_url = reverse('token_obtain_pair')
+
         response = self.client.post(
-            'http://127.0.0.1:8000/catalog/api/token/',
+            token_url,
             user_credentials,
             format="json"
         )
@@ -269,8 +277,10 @@ class AuthorAPIViewTest(APITestCase):
             "password": "1X<ISRUkw+tuK"
         }
 
+        token_url = reverse('token_obtain_pair')
+
         response = self.client.post(
-            'http://127.0.0.1:8000/catalog/api/token/',
+            token_url,
             user_credentials,
             format="json"
         )
@@ -295,8 +305,10 @@ class AuthorAPIViewTest(APITestCase):
             "password": "1X<ISRUkw+tuK"
         }
 
+        token_url = reverse('token_obtain_pair')
+
         response = self.client.post(
-            'http://127.0.0.1:8000/catalog/api/token/',
+            token_url,
             user_credentials,
             format="json"
         )
@@ -477,8 +489,10 @@ class RegisterLibrarianTest(APITestCase):
             "password": "2HJ1vRV0Z&3iD"
         }
 
+        token_url = reverse('token_obtain_pair')
+
         response = self.client.post(
-            'http://127.0.0.1:8000/catalog/api/token/',
+            token_url,
             user_credentials,
             format="json"
         )
@@ -508,8 +522,10 @@ class RegisterLibrarianTest(APITestCase):
             "password": "1X<ISRUkw+tuK"
         }
 
+        token_url = reverse('token_obtain_pair')
+
         response = self.client.post(
-            'http://127.0.0.1:8000/catalog/api/token/',
+            token_url,
             user_credentials,
             format="json"
         )
@@ -544,8 +560,10 @@ class RegisterLibrarianTest(APITestCase):
             "password": "1X<ISRUkw+tuK"
         }
 
+        token_url = reverse('token_obtain_pair')
+
         response = self.client.post(
-            'http://127.0.0.1:8000/catalog/api/token/',
+            token_url,
             user_credentials,
             format="json"
         )
@@ -576,8 +594,10 @@ class RegisterLibrarianTest(APITestCase):
             "password": "1X<ISRUkw+tuK"
         }
 
+        token_url = reverse('token_obtain_pair')
+
         response = self.client.post(
-            'http://127.0.0.1:8000/catalog/api/token/',
+            token_url,
             user_credentials,
             format="json"
         )
@@ -607,8 +627,10 @@ class RegisterLibrarianTest(APITestCase):
             "password": "1X<ISRUkw+tuK"
         }
 
+        token_url = reverse('token_obtain_pair')
+
         response = self.client.post(
-            'http://127.0.0.1:8000/catalog/api/token/',
+            token_url,
             user_credentials,
             format="json"
         )
@@ -651,8 +673,10 @@ class RegisterLibrarianTest(APITestCase):
             "password": "1X<ISRUkw+tuK"
         }
 
+        token_url = reverse('token_obtain_pair')
+
         response = self.client.post(
-            'http://127.0.0.1:8000/catalog/api/token/',
+            token_url,
             user_credentials,
             format="json"
         )
@@ -692,8 +716,10 @@ class RegisterLibrarianTest(APITestCase):
             "password": "1X<ISRUkw+tuK"
         }
 
+        token_url = reverse('token_obtain_pair')
+
         response = self.client.post(
-            'http://127.0.0.1:8000/catalog/api/token/',
+            token_url,
             user_credentials,
             format="json"
         )
@@ -764,6 +790,49 @@ class BookAPIViewTest(TestCase):
         response = client.get(url)
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
+    
+    def test_list_books_status_with_normal_user_authorization(self):
+        url = reverse('book-api-list')
+        client = APIClient()
+
+        user_credentials = {
+            "username": "testuser2",
+            "password": "2HJ1vRV0Z&3iD"
+        }
+
+        token_url = reverse('token_obtain_pair')
+
+        response = client.post(
+            token_url,
+            user_credentials,
+            format="json"
+        )
+
+        response = client.get(url)
+
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+
+    def test_list_books_with_librarian_authorization(self):
+        url = reverse('book-api-list')
+        client = APIClient()
+
+        user_credentials = {
+            "username": "testuser1",
+            "password": "1X<ISRUkw+tuK"
+        }
+
+        token_url = reverse('token_obtain_pair')
+
+        response = client.post(
+            token_url,
+            user_credentials,
+            format="json"
+        )
+
+        response = client.get(url)
+
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+
 
     def test_list_book_response_body(self):
         url = reverse('book-api-list')
@@ -799,7 +868,56 @@ class BookAPIViewTest(TestCase):
 
         self.assertEqual(response_body, expected_response)
 
-    def test_create_book_status(self):
+    def test_create_book_status_without_authorization(self):
+        client = APIClient()
+        url = reverse('book-api-list')
+
+        response = client.post(url,
+            {
+                "title":"book_title2",
+                "summary": "summary2",
+                "isbn": "1234567891248",
+                "genre": [1]
+            },
+            format='json'
+        )
+
+        self.assertEqual(response.status_code, HTTPStatus.UNAUTHORIZED) 
+
+    def test_create_book_status_with_normal_user_authorization(self):
+        client = APIClient()
+        url = reverse('book-api-list')
+
+        user_credentials = {
+            "username": "testuser2",
+            "password": "2HJ1vRV0Z&3iD"
+        }
+
+        token_url = reverse('token_obtain_pair')
+
+        response = client.post(
+            token_url,
+            user_credentials,
+            format="json"
+        )
+
+        response_body = response.json()
+        access_token = response_body['access']
+
+        client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token}')
+        response = client.post(url,
+            {
+                "title":"book_title2",
+                "summary": "summary2",
+                "isbn": "1234567891248",
+                "genre": [1]
+            },
+            format='json'
+        )
+
+        self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
+
+    def test_create_book_status_with_librarian_authorization(self):
         
         client = APIClient()
         url = reverse('book-api-list')
@@ -809,8 +927,10 @@ class BookAPIViewTest(TestCase):
             "password": "1X<ISRUkw+tuK"
         }
 
+        token_url = reverse('token_obtain_pair')
+
         response = client.post(
-            'http://127.0.0.1:8000/catalog/api/token/',
+            token_url,
             user_credentials,
             format="json"
         )
@@ -839,8 +959,10 @@ class BookAPIViewTest(TestCase):
             "password": "1X<ISRUkw+tuK"
         }
 
+        token_url = reverse('token_obtain_pair')
+
         response = client.post(
-            'http://127.0.0.1:8000/catalog/api/token/',
+            token_url,
             user_credentials,
             format="json"
         )
@@ -875,7 +997,7 @@ class BookAPIViewTest(TestCase):
 
         self.assertEqual(response_body,expected_response)
 
-    def test_get_book_using_id(self):
+    def test_get_book_using_id_without_authorization(self):
         
         client = APIClient()
         url = reverse('book-api-detail',[1])
@@ -903,8 +1025,95 @@ class BookAPIViewTest(TestCase):
         }
 
         self.assertEqual(response_body,expected_response)
+    
+    def get_book_using_id_with_normal_user_authorization(self):
+        client = APIClient()
+        url = reverse('book-api-list')
 
-    def test_delete_book_using_id(self):
+        user_credentials = {
+            "username": "testuser2",
+            "password": "2HJ1vRV0Z&3iD"
+        }
+
+        token_url = reverse('token_obtain_pair')
+
+        response = client.post(
+            token_url,
+            user_credentials,
+            format="json"
+        )
+
+        response_body = response.json()
+        access_token = response_body['access']
+
+        client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token}')
+        url = reverse('book-api-detail',[1])
+        response = client.get(url)
+
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+
+    def get_book_using_id_response_with_librarian_authorization(self):
+        client = APIClient()
+        url = reverse('book-api-list')
+
+        user_credentials = {
+            "username": "testuser1",
+            "password": "1X<ISRUkw+tuK"
+        }
+
+        token_url = reverse('token_obtain_pair')
+
+        response = client.post(
+            token_url,
+            user_credentials,
+            format="json"
+        )
+
+        response_body = response.json()
+        access_token = response_body['access']
+
+        client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token}')
+        url = reverse('book-api-detail',[1])
+        response = client.get(url)
+
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+
+    def test_delete_book_using_id_without_authorization(self):
+        client = APIClient()
+
+        url = reverse('book-api-detail',[1])
+        response = client.delete(url)
+
+        self.assertEqual(response.status_code, HTTPStatus.UNAUTHORIZED)
+
+    def test_delete_book_using_id_with_normal_user_authorization(self):
+        client = APIClient()
+
+        user_credentials = {
+            "username": "testuser2",
+            "password": "2HJ1vRV0Z&3iD"
+        }
+
+        token_url = reverse('token_obtain_pair')
+
+        response = client.post(
+            token_url,
+            user_credentials,
+            format="json"
+        )
+
+        response_body = response.json()
+        access_token = response_body['access']
+
+        client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token}')
+
+        url = reverse('book-api-detail',[1])
+        response = client.delete(url)
+
+        # Status code 204 means that the request completed successfully but no response was returned
+        self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
+
+    def test_delete_book_using_id_with_librarian_authorization(self):
         
         client = APIClient()
 
@@ -913,8 +1122,10 @@ class BookAPIViewTest(TestCase):
             "password": "1X<ISRUkw+tuK"
         }
 
+        token_url = reverse('token_obtain_pair')
+
         response = client.post(
-            'http://127.0.0.1:8000/catalog/api/token/',
+            token_url,
             user_credentials,
             format="json"
         )
@@ -938,8 +1149,10 @@ class BookAPIViewTest(TestCase):
             "password": "1X<ISRUkw+tuK"
         }
 
+        token_url = reverse('token_obtain_pair')
+
         response = client.post(
-            'http://127.0.0.1:8000/catalog/api/token/',
+            token_url,
             user_credentials,
             format="json"
         )
@@ -957,7 +1170,57 @@ class BookAPIViewTest(TestCase):
         # Status code 204 means that the request completed successfully but no response was returned
         self.assertLess(book_count_after_delete, book_count_before_delete)
 
-    def test_update_book_using_id(self):
+    def test_update_book_using_id_without_authorization(self):
+        
+        client = APIClient()
+        url = reverse('book-api-detail',[1])
+        response = client.put(url,
+            {
+                "title":"book_title_updated",
+                "summary": "summary_updated",
+                "isbn": "1234567891247",
+                "genre": [1]
+            },
+            format='json'
+        )
+
+        self.assertEqual(response.status_code, HTTPStatus.UNAUTHORIZED)
+
+    def test_update_book_using_id_with_normal_user_authorization(self):
+        client = APIClient()
+
+        user_credentials = {
+            "username": "testuser2",
+            "password": "2HJ1vRV0Z&3iD"
+        }
+
+        token_url = reverse('token_obtain_pair')
+
+        response = client.post(
+            token_url,
+            user_credentials,
+            format="json"
+        )
+
+        response_body = response.json()
+        access_token = response_body['access']
+
+        client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token}')
+
+        url = reverse('book-api-detail',[1])
+        response = client.put(url,
+            {
+                "title":"book_title_updated",
+                "summary": "summary_updated",
+                "isbn": "1234567891247",
+                "genre": [1]
+            },
+            format='json'
+        )
+
+        self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
+
+    def test_update_book_using_id_with_librarian_authorization(self):
         
         client = APIClient()
 
@@ -966,8 +1229,10 @@ class BookAPIViewTest(TestCase):
             "password": "1X<ISRUkw+tuK"
         }
 
+        token_url = reverse('token_obtain_pair')
+
         response = client.post(
-            'http://127.0.0.1:8000/catalog/api/token/',
+            token_url,
             user_credentials,
             format="json"
         )
