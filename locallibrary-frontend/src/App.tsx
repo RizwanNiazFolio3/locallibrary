@@ -6,6 +6,8 @@ import Login from "./components/pages/Login"
 import AuthorDetails from './components/pages/AuthorDetails';
 import {BrowserRouter as Router, Route, Switch} from 'react-router-dom';
 import AuthContextProvider from './contexts/AuthContext';
+import AuthorForm from './components/pages/AuthorForm';
+import AuthorDelete from './components/pages/AuthorDelete';
 
 function App() {
   return (
@@ -30,8 +32,17 @@ function App() {
             <Route path = "/Login">
               <Login />
             </Route>
-            <Route path = "/authors/:id(\d+)">
+            <Route exact path = "/authors/:id(\d+)">
               <AuthorDetails />
+            </Route>
+            <Route exact path = "/authors/:id(\d+)/delete">
+              <AuthorDelete />
+            </Route>
+            <Route exact path = "/authors/:id(\d+)/:method(update)">
+              <AuthorForm />
+            </Route>
+            <Route exact path = "/authors/:method(create)">
+              <AuthorForm />
             </Route>
           </Switch>
         </AuthContextProvider>
