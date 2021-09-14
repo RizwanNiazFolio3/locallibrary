@@ -6,6 +6,8 @@ import Login from "./components/pages/Login"
 import AuthorDetails from './components/pages/AuthorDetails';
 import {BrowserRouter as Router, Route, Switch} from 'react-router-dom';
 import AuthContextProvider from './contexts/AuthContext';
+import { BookListContainer } from './components/pages/BookListContainer';
+import { BookDetailsContainer } from './components/pages/BookDetailsContainer';
 
 function App() {
   return (
@@ -32,6 +34,12 @@ function App() {
             </Route>
             <Route path = "/authors/:id(\d+)">
               <AuthorDetails />
+            </Route>
+            <Route exact path = "/books">
+              <BookListContainer />
+            </Route>
+            <Route path = "/books/:id(\d+)">
+              <BookDetailsContainer />
             </Route>
           </Switch>
         </AuthContextProvider>
