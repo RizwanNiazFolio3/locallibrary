@@ -134,6 +134,9 @@ class AllBorrowedBooksApiViewset(
 class BookViewSet(viewsets.ModelViewSet):
     """This viewset provides create, retrieve, update and delete apis for books"""
 
+    permission_classes = [
+        IsLibrarian
+    ]
 
     queryset = Book.objects.all()
     serializer_class = BookSerializer
@@ -153,7 +156,7 @@ class LanguageViewSet(viewsets.ModelViewSet):
     """This viewset provides create, retrieve, update and delete apis for language"""
 
     permission_classes = [
-        
+        IsLibrarian
     ]
     queryset = Language.objects.all()
     serializer_class = LanguageSerializer

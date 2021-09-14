@@ -21,8 +21,8 @@ router = routers.DefaultRouter()
 router.register('api/authors',AuthorViewSet,'author-api')
 router.register('api/borrowed',AllBorrowedBooksApiViewset, 'borrowed-books-api')
 router.register('api/books',BookViewSet,'book-api')
-router.register('api/genres',GenreViewSet,'genre-api')
-router.register('api/languages',LanguageViewSet,'language-api')
+router.register('api/genres', GenreViewSet, 'genre-api')
+router.register('api/languages', LanguageViewSet, 'language-api')
 
 
 urlpatterns = [
