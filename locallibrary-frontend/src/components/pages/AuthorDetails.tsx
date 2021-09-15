@@ -35,9 +35,8 @@ function AuthorDetails() {
             setDateOfDeath(response.data.date_of_death)
         })
     },[id])
-    //Rendering out the Author page. 
-    //The Book Description portion is a placeholder as the api to get the books for an author has not been made yet
 
+    //This creates links to the update and delete librarian pages
     function librarianLinks(){
         return (
             <>
@@ -51,6 +50,8 @@ function AuthorDetails() {
         )
     }
 
+    //Rendering out the Author page. 
+    //The Book Description portion is a placeholder as the api to get the books for an author has not been made yet
     return (
         <div>
             <h1>Author: {lastName}, {firstName}</h1>
