@@ -1,49 +1,46 @@
 import React, { 
     ReactElement,
-    useState,
     useEffect,
+    useState,
 } from 'react';
 import {
-    useParams
+    useParams,
+    useHistory,
 } from 'react-router-dom';
 import axiosInstance from '../../axios'
 
 interface Props {
-    firstName?: string,
-    lastName?: string,
-    dateOfBirth?: string,
-    dateOfDeath?:string
+
 }
 
-function AuthorDelete({firstName,lastName}: Props): ReactElement {
+function AuthorDelete({}: Props): ReactElement {
     let {id}:{id: string} = useParams();
-    const [wasDeleted, setWasDeleted] = useState<boolean>(false)
+    const history = useHistory()
+    const [firstName,setFirstName] = useState<string>("--Loading--")
+    const [lastName,setLastName] = useState<string>("--Loading--")
 
-    useEffect(() => {
-
-
-    })
+    useEffect(() =>{
+        axiosInstance.get('/catalog/api/authors/' + id + "/")
+        .then(response => {
+            setFirstName(response.data.first_name)
+            setLastName(response.data.last_name)
+        })
+    },[id])
 
     function handleClick()
     {
         axiosInstance.delete('/catalog/api/authors/' + id + "/")
         .then(
             (response) => {
-                setWasDeleted(true)
+                history.push('/authors')
             } 
         )
     }
-    function SuccessMessage()
-    {
-        return(
-            <p>The Author was successfully deleted</p>
-        )
-    }
+
     return (
         <div>
-            <h1>DELETE Author with ID = {id} ?</h1>
-            <button onClick = {handleClick}>Delete</button>
-            {wasDeleted === false? null: SuccessMessage}
+            <h1>DELETE Author {lastName}, {firstName}  ?</h1>
+            <button onClick = {handleClick}>Yes, Delete</button>
         </div>
     )
 }

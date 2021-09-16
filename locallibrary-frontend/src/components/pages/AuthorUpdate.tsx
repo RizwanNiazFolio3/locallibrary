@@ -9,6 +9,7 @@ import {
 } from 'react-router-dom'
 import AuthorForm, {AuthorDetails} from '../AuthorForm';
 import {SubmitHandler} from 'react-hook-form'
+import {useHistory} from 'react-router-dom'
 
 interface Props {
     
@@ -16,6 +17,7 @@ interface Props {
 
 function AuthorUpdate(props: Props): ReactElement {
     let {id}:{id: string} = useParams();
+    const history = useHistory()
 
     const [firstName,setFirstName] = useState<string>()
     const [lastName,setLastName] = useState<string>()
@@ -24,11 +26,20 @@ function AuthorUpdate(props: Props): ReactElement {
     const [loaded,setLoaded] = useState<boolean>(false)
 
     const onSubmit: SubmitHandler<AuthorDetails> = data => {
-        axiosInstance.put("/catalog/api/authors/"+id+"/", data)
+        axiosInstance.put("/catalog/api/authors/"+id+"/", cleanData(data))
         .then(response =>{
+            history.push('/authors/'+id)
             console.log('This was called')
             console.log(data)
         })
+    }
+
+    function cleanData(data:AuthorDetails){
+        data.first_name = data.first_name===""? null: data.first_name
+        data.last_name = data.last_name===""? null: data.last_name
+        data.date_of_birth = data.date_of_birth===""? null: data.date_of_birth
+        data.date_of_death = data.date_of_death===""? null: data.date_of_death
+        return data
     }
 
     useEffect(() => {
@@ -52,7 +63,7 @@ function AuthorUpdate(props: Props): ReactElement {
                 date_of_death={dateOfDeath}
                 onSubmit = {onSubmit}
             />
-            :<h1>Loading</h1>}
+            :<h1>--Loading--</h1>}
 
         </div>
     )
