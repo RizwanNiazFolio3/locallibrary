@@ -40,6 +40,16 @@ class RegisterLibrarianSerializer(RegisterSerializer):
         librarian_group = Group.objects.get(name="Librarians")
         librarian_group.user_set.add(user)
         return user
+
+class HomePageSerializer(serializers.Serializer):
+    num_books = serializers.IntegerField()
+    num_instances = serializers.IntegerField()
+    num_instances_available = serializers.IntegerField()
+    num_fantasy_genres = serializers.IntegerField()
+    num_lotr_books = serializers.IntegerField()
+    num_authors = serializers.IntegerField()
+
+    
 class BookSerializer(serializers.ModelSerializer):
     """This class converts model"""
 

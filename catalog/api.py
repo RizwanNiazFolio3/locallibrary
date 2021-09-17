@@ -1,6 +1,6 @@
-from catalog.models import Author, Book
+from catalog.models import Author, Book, BookInstance, Genre
 from rest_framework import generics, viewsets, permissions
-from .serializers import AuthorSerializer, RegisterSerializer, UserSerializer, RegisterLibrarianSerializer, BookSerializer
+from .serializers import AuthorSerializer, RegisterSerializer, UserSerializer, RegisterLibrarianSerializer, HomePageSerializer, BookSerializer
 from .permissions import IsLibrarian #importing our custom permission
 from rest_framework.response import Response
 from rest_framework.request import Request
@@ -65,4 +65,37 @@ class RegisterLibrarianApiView(RegisterApiView):
     ]
 
     serializer_class = RegisterLibrarianSerializer
+
+class HomePageApiView(APIView):
+    permission_classes = [
+        permissions.AllowAny
+    ]
+
+    def get(self, request):
+        num_books = Book.objects.all().count()
+        num_instances = BookInstance.objects.all().count()
+
+        # Available books (status = 'a')
+        num_instances_available = BookInstance.objects.filter(status__exact='a').count()
+
+        num_fantasy_genres = Genre.objects.filter(name__icontains='Fantasy').count()
+
+        num_lotr_books = Book.objects.filter(title__icontains='Lord of the rings').count()
+
+        # The 'all()' is implied by default.
+        num_authors = Author.objects.count()
+
+        home_page_data = {
+        'num_books': num_books,
+        'num_instances': num_instances,
+        'num_instances_available': num_instances_available,
+        'num_authors': num_authors,
+        'num_fantasy_genres' : num_fantasy_genres,
+        'num_lotr_books' : num_lotr_books,
+        }
+
+        result = HomePageSerializer(home_page_data).data
+
+        return Response(result)
+
 
