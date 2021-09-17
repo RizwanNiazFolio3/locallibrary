@@ -30,18 +30,23 @@ function App() {
             <Route exact path = "/authors">
               <Authors />
             </Route>
+            {/* URL for the Login Page */}
             <Route path = "/Login">
               <Login />
             </Route>
+            {/* URL for a specific authors Details page */}
             <Route exact path = "/authors/:id(\d+)">
               <AuthorDetails />
             </Route>
+            {/* URL for the deletion page of a specific author */}
             <Route exact path = "/authors/:id(\d+)/delete">
               <AuthorDelete />
             </Route>
+            {/* URL for the update page of a specific author */}
             <Route exact path = "/authors/:id(\d+)/update">
               <AuthorUpdate />
             </Route>
+            {/* URL for the author Creation page */}
             <Route exact path = "/authors/create">
               <AuthorCreate />
             </Route>

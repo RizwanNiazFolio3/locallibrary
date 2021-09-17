@@ -25,23 +25,10 @@ function AuthorUpdate(props: Props): ReactElement {
     const [dateOfDeath,setDateOfDeath] = useState<string>()
     const [loaded,setLoaded] = useState<boolean>(false)
 
-    const onSubmit: SubmitHandler<AuthorDetails> = data => {
-        axiosInstance.put("/catalog/api/authors/"+id+"/", cleanData(data))
-        .then(response =>{
-            history.push('/authors/'+id)
-            console.log('This was called')
-            console.log(data)
-        })
-    }
-
-    function cleanData(data:AuthorDetails){
-        data.first_name = data.first_name===""? null: data.first_name
-        data.last_name = data.last_name===""? null: data.last_name
-        data.date_of_birth = data.date_of_birth===""? null: data.date_of_birth
-        data.date_of_death = data.date_of_death===""? null: data.date_of_death
-        return data
-    }
-
+    /**
+     * When the page loads, we will use the API to get the current values of the author object we are updating.
+     * This data will be used to prefill the form, which will render after the data has been obtained
+     */
     useEffect(() => {
         axiosInstance.get("/catalog/api/authors/"+id)
         .then(response =>{
@@ -53,8 +40,31 @@ function AuthorUpdate(props: Props): ReactElement {
         })
     },[id])
 
+    /**
+     * The onSubmit function takes an AuthorDetails object as an argument and uses it to make a post request to 
+     * update the desires author
+     * @param data The AuthorDetails interface is defined in the AuthorForm component
+     */
+    const onSubmit: SubmitHandler<AuthorDetails> = data => {
+        axiosInstance.put("/catalog/api/authors/"+id+"/", cleanData(data))
+        .then(response =>{
+            history.push('/authors/'+id)
+        })
+    }
+
+    //We must clean the data to make sure empty strings are replaced with null values to make the put request valid
+    function cleanData(data:AuthorDetails){
+        data.first_name = data.first_name===""? null: data.first_name
+        data.last_name = data.last_name===""? null: data.last_name
+        data.date_of_birth = data.date_of_birth===""? null: data.date_of_birth
+        data.date_of_death = data.date_of_death===""? null: data.date_of_death
+        return data
+    }
+
     return (
         <div>
+            {/* The loaded state allows us to only render the form when the data has been obtained, 
+            This will allow us to prefill the form with the author data when it renders */}
             {loaded === true?
             <AuthorForm
                 first_name={firstName}

@@ -13,12 +13,13 @@ interface Props {
 
 }
 
-function AuthorDelete({}: Props): ReactElement {
+function AuthorDelete(props: Props): ReactElement {
     let {id}:{id: string} = useParams();
     const history = useHistory()
     const [firstName,setFirstName] = useState<string>("--Loading--")
     const [lastName,setLastName] = useState<string>("--Loading--")
 
+    //We will make a get request to obtain the details of the author we are about to delete.
     useEffect(() =>{
         axiosInstance.get('/catalog/api/authors/' + id + "/")
         .then(response => {
@@ -27,6 +28,7 @@ function AuthorDelete({}: Props): ReactElement {
         })
     },[id])
 
+    //Deleting the author and then redirecting to the /authors page upon success
     function handleClick()
     {
         axiosInstance.delete('/catalog/api/authors/' + id + "/")
