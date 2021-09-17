@@ -1,6 +1,7 @@
 from rest_framework import serializers
-from catalog.models import Author
+from catalog.models import Author, Book
 from django.contrib.auth.models import User, Group
+
 
 class AuthorSerializer(serializers.ModelSerializer):
     class Meta:
@@ -18,7 +19,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'password':{'write_only': True},
         }
-    def create(self, validated_data):
+    def create(self, validated_data: dict) -> User:
         #Creating a new user once it is validated
         user = User.objects.create_user(validated_data['username'], password = validated_data['password'])
         return user
@@ -34,7 +35,7 @@ class UserSerializer(serializers.ModelSerializer):
 class RegisterLibrarianSerializer(RegisterSerializer):
     '''The serializer to register other librarians'''
     #We must override the create method of the parent class so that it now allows us to the user being created to the librarian group
-    def create(self, validated_data):
+    def create(self, validated_data: dict) -> User:
         user = User.objects.create_user(validated_data['username'], password = validated_data['password'])
         librarian_group = Group.objects.get(name="Librarians")
         librarian_group.user_set.add(user)
@@ -47,3 +48,13 @@ class HomePageSerializer(serializers.Serializer):
     num_fantasy_genres = serializers.IntegerField()
     num_lotr_books = serializers.IntegerField()
     num_authors = serializers.IntegerField()
+
+    
+class BookSerializer(serializers.ModelSerializer):
+    """This class converts model"""
+
+    class Meta:
+        model = Book
+        fields = '__all__'
+
+
