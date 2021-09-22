@@ -1,4 +1,5 @@
 import axios from 'axios'
+import jwt_decode from 'jwt-decode'
 
 const axiosInstance = axios.create({
 	/**
@@ -66,6 +67,21 @@ export function HomePage(setData){
 			(res) => {setData(res.data)},
 			(error) => {console.log("An error occured")}
 		) //This should define how the app behaves if the api get request fails
+}
+
+export function GetToken(data,history,LoginFunction){
+	axiosInstance.post("/catalog/api/token/",data)
+	.then((res) =>{
+		//Storing the access and refresh tokens.
+		localStorage.setItem('access_token',res.data.access)
+		localStorage.setItem('refresh_token',res.data.refresh)
+		//passing the decoded access token to the AuthContext to get the state variables needed to render for the
+		//current user
+		const decoded_token = jwt_decode(localStorage.getItem("access_token"))
+		LoginFunction(decoded_token)
+		axiosInstance.defaults.headers['Authorization'] = "Bearer " + localStorage.getItem('access_token')
+		history.push('/')
+	})
 }
 
 export default axiosInstance
