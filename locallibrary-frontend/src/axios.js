@@ -56,4 +56,16 @@ export function GetAuthors(setAuthorList){
 		)
 }
 
+export function HomePage(setData){
+	/**
+	 * Since we've added "proxy": "http://127.0.0.1:8000/", to packages.json,
+	 * We do not need to use the full URL and instead a relative URL can be used to access the endpoint
+	 */
+		axiosInstance.get("/catalog/api/home")
+		.then(
+			(res) => {setData(res.data)},
+			(error) => {console.log("An error occured")}
+		) //This should define how the app behaves if the api get request fails
+}
+
 export default axiosInstance
