@@ -29,4 +29,19 @@ export function Axioslogout(history,LogoutFunction){
 	})
 }
 
+export function GetAuthorDetails(
+	id,
+	setFirstName,
+	setLastName,
+	setDateOfBirth,
+	setDateOfDeath){
+	axiosInstance.get("/catalog/api/authors/"+id)
+	.then(response =>{
+		setFirstName(response.data.first_name)
+		setLastName(response.data.last_name)
+		setDateOfBirth(response.data.date_of_birth)
+		setDateOfDeath(response.data.date_of_death)
+	})
+}
+
 export default axiosInstance
