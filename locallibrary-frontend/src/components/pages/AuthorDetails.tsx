@@ -9,7 +9,7 @@ import {
     useRouteMatch,
   } from "react-router-dom";
   
-  import axiosInstance from '../../axios';
+  import {client} from '../../axios';
   import {AuthContext} from "../../contexts/AuthContext"
 
 
@@ -20,20 +20,22 @@ function AuthorDetails() {
 
     const {isLibrarian}: {isLibrarian: boolean} = useContext(AuthContext)
 
-    const [firstName,setFirstName] = useState("")
-    const [lastName,setLastName] = useState("")
-    const [dateOfBirth,setDateOfBirth] = useState("")
-    const [dateOfDeath,setDateOfDeath] = useState("")
+    const [firstName,setFirstName] = useState<string|null|undefined>("")
+    const [lastName,setLastName] = useState<string|null|undefined>("")
+    const [dateOfBirth,setDateOfBirth] = useState<string|null|undefined>("")
+    const [dateOfDeath,setDateOfDeath] = useState<string|null|undefined>("")
 
     //Getting the details of a specific author from the api endpoint
     useEffect(() => {
-        axiosInstance.get("/catalog/api/authors/"+id)
-        .then(response =>{
-            setFirstName(response.data.first_name)
-            setLastName(response.data.last_name)
-            setDateOfBirth(response.data.date_of_birth)
-            setDateOfDeath(response.data.date_of_death)
-        })
+        client.GetAuthorDetails(id)
+        .then(
+            response => {
+                setFirstName(response.first_name)
+                setLastName(response.last_name)
+                setDateOfBirth(response.date_of_birth)
+                setDateOfDeath(response.date_of_death)
+            }
+        )
     },[id])
 
     //This creates links to the update and delete librarian pages

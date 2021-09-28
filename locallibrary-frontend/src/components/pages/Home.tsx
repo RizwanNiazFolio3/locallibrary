@@ -1,9 +1,9 @@
 import React, {useEffect, useState} from 'react'
-import axiosInstance from "../../axios"
+import axiosInstance, {client} from "../../axios"
 
 
 //After a successful api call, the data element should be populated as HomeData type
-type HomeData = {
+export type HomeData = {
     num_authors: number;
     num_books: number;
     num_fantasy_genres: number;
@@ -38,11 +38,16 @@ function Home() {
          * Since we've added "proxy": "http://127.0.0.1:8000/", to packages.json,
          * We do not need to use the full URL and instead a relative URL can be used to access the endpoint
          */
-        axiosInstance.get("/catalog/api/home")
+        client.GetHomePageData()
         .then(
-            (res) => {setData(res.data)},
-            (error) => {console.log("An error occured")}
-        ) //This should define how the app behaves if the api get request fails
+            (HomePageData)=>{
+            setData(HomePageData)
+            },
+            (error)=>{
+            console.log("An error occured")
+            }
+        )
+        //This should define how the app behaves if the api get request fails
     },[])
 
     /**
