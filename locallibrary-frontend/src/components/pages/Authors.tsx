@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react'
 import axiosInstance from "../../axios"
 import AuthorListItem, { AuthorAttributes } from '../AuthorListItem'
+import {GetAuthors} from "../../axios"
 import {
     useRouteMatch
 } from 'react-router-dom'
@@ -20,15 +21,7 @@ function Authors() {
     //When the page first loads up, make an api call to recieve a list of author objects
     //and save it in the state.
     useEffect(() => {
-        /**
-         * Since we've added "proxy": "http://127.0.0.1:8000/", to packages.json,
-         * We do not need to use the full URL and instead a relative URL can be used to access the endpoint
-         */
-        axiosInstance.get("/catalog/api/authors")
-        .then(
-            (res) => {setAuthorList(res.data)},
-            (error) => {console.log("There was an error retrieving author list")}//Place holder. Will be used for error handling
-        )
+        GetAuthors(setAuthorList)
     },[])
 
     //This function returns the AuthorListItem components. It is called in the return statement
