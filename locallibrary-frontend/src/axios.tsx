@@ -70,8 +70,22 @@ export class APIClient{
         })
 	}
 
-	public SetAxiosHeaders():void{
-		axiosInstance.defaults.headers['Authorization'] = "Bearer " + localStorage.getItem('access_token')
+	public SetAxiosHeaders(TokenHeader:String|null):void{
+		APIClient.axiosInstance.defaults.headers['Authorization'] = TokenHeader
+		console.log(APIClient.axiosInstance.defaults.headers['Authorization'])
+	}
+
+	public Logout(){
+		return APIClient.axiosInstance.post("/catalog/api/logout",{refresh : localStorage.getItem("refresh_token")})
+	}
+
+	public PostAuthor(AuthorData:AuthorDetails){
+        return APIClient.axiosInstance.post('/catalog/api/authors/',AuthorData)
+        .then(res =>{
+            //Redirect to the details page of the currently created author
+            const id:Number = res.data.id
+            return id
+        })
 	}
 }
 

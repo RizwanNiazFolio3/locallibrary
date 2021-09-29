@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react'
 import AuthorForm from '../AuthorForm'
 import {SubmitHandler} from 'react-hook-form'
-import axiosInstance from '../../axios'
+import axiosInstance, {client} from '../../axios'
 import {useHistory} from 'react-router-dom'
 import {AuthorDetails} from '../../CustomTypes'
 
@@ -15,11 +15,9 @@ function AuthorCreate(props: Props): ReactElement {
      * @param data AuthorDetails is defined in the AuthorForms component page,
      */
     const onSubmit: SubmitHandler<AuthorDetails> = data => {
-        axiosInstance.post('/catalog/api/authors/',cleanData(data))
-        .then(res =>{
-            //Redirect to the details page of the currently created author
-            const id:Number = res.data.id
-            history.push("/authors/" + id)
+        client.PostAuthor(cleanData(data))
+        .then(AuthorID => {
+            history.push("/authors/" + AuthorID)
         })
     }
 

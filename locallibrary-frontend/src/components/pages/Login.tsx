@@ -31,21 +31,18 @@ function Login() {
             localStorage.setItem('access_token',Token.access_token)
             localStorage.setItem('refresh_token',Token.refresh_token)
             const tok: string | null = localStorage.getItem("access_token");
+            console.log(tok)
             if(tok){
-    
+                console.log('came here')
                 const decoded_token: DecodedToken = jwt_decode(tok)
+                //passing the decoded access token to the AuthContext to get the state variables needed to render for the
+                //current user
                 LoginFunction(decoded_token)
-                client.SetAxiosHeaders()
+                client.SetAxiosHeaders("Bearer " + localStorage.getItem('access_token'))
                 history.push('/')
             }
         })
-        // axiosInstance.post("/catalog/api/token/",data)
-        // .then((res) =>{
-        //     //Storing the access and refresh tokens.
-        //     localStorage.setItem('access_token',res.data.access)
-        //     localStorage.setItem('refresh_token',res.data.refresh)
-        //     //passing the decoded access token to the AuthContext to get the state variables needed to render for the
-        //     //current user
+
 
         // })
     }
