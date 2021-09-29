@@ -1,8 +1,9 @@
 import React, {useState,useContext} from 'react'
-import axiosInstance from "../../axios"
+import {client} from "../../axios"
 import {useHistory} from 'react-router-dom'
 import jwt_decode from 'jwt-decode'
 import { AuthContext, DecodedToken } from '../../contexts/AuthContext'
+import {UserLoginData} from '../../CustomTypes'
 
 
 
@@ -21,27 +22,32 @@ function Login() {
 
     function handleSubmit(event: React.FormEvent<HTMLFormElement>){
         event.preventDefault();
-        const data = {
+        const data:UserLoginData = {
             username: userName,
             password: password
         }
-        axiosInstance.post("/catalog/api/token/",data)
-        .then((res) =>{
-            //Storing the access and refresh tokens.
-            localStorage.setItem('access_token',res.data.access)
-            localStorage.setItem('refresh_token',res.data.refresh)
-            //passing the decoded access token to the AuthContext to get the state variables needed to render for the
-            //current user
+        client.Login(data)
+        .then(Token =>{
+            localStorage.setItem('access_token',Token.access_token)
+            localStorage.setItem('refresh_token',Token.refresh_token)
             const tok: string | null = localStorage.getItem("access_token");
-
             if(tok){
-
+    
                 const decoded_token: DecodedToken = jwt_decode(tok)
                 LoginFunction(decoded_token)
-                axiosInstance.defaults.headers['Authorization'] = "Bearer " + localStorage.getItem('access_token')
+                client.SetAxiosHeaders()
                 history.push('/')
             }
         })
+        // axiosInstance.post("/catalog/api/token/",data)
+        // .then((res) =>{
+        //     //Storing the access and refresh tokens.
+        //     localStorage.setItem('access_token',res.data.access)
+        //     localStorage.setItem('refresh_token',res.data.refresh)
+        //     //passing the decoded access token to the AuthContext to get the state variables needed to render for the
+        //     //current user
+
+        // })
     }
 
     return (

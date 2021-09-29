@@ -1,7 +1,11 @@
 import axios, {AxiosInstance, AxiosRequestConfig} from 'axios'
 import { AuthorDetails } from './CustomTypes'
 import { HomeData } from './components/pages/Home'
-import { AuthorAttributes } from './CustomTypes'
+import { 
+	AuthorAttributes,
+	UserLoginData,
+	Tokens
+} from './CustomTypes'
 
 export class APIClient{
 
@@ -19,7 +23,7 @@ export class APIClient{
 		return APIClient.instance
 	}
 
-	public GetAuthorDetails(id:string){
+	public GetAuthorDetails(id:string):Promise<AuthorDetails>{
 		return APIClient.axiosInstance.get("/catalog/api/authors/"+id)
 		.then(res=>{
 
@@ -38,7 +42,7 @@ export class APIClient{
 		})
 	}
 
-	public GetHomePageData(){
+	public GetHomePageData():Promise<HomeData>{
 		return APIClient.axiosInstance.get("/catalog/api/home")
 		.then(res=>{
 			let HomePageData:HomeData = res.data
@@ -46,13 +50,28 @@ export class APIClient{
 		})
 	}
 
-	public GetAuthorsList(){
+	public GetAuthorsList():Promise<AuthorAttributes[]>{
 		let authorList:AuthorAttributes[]
 		return APIClient.axiosInstance.get("/catalog/api/authors")
 		.then(response=>{
 			authorList = response.data
 			return authorList
 		})
+	}
+
+	public Login(data:UserLoginData):Promise<Tokens>{
+        return APIClient.axiosInstance.post("/catalog/api/token/",data)
+        .then((res) =>{
+			let tokens:Tokens = {
+				access_token:res.data.access,
+				refresh_token:res.data.refresh
+			}
+			return tokens
+        })
+	}
+
+	public SetAxiosHeaders():void{
+		axiosInstance.defaults.headers['Authorization'] = "Bearer " + localStorage.getItem('access_token')
 	}
 }
 

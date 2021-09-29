@@ -12,3 +12,13 @@ export interface AuthorDetails {
 export interface AuthorAttributes extends AuthorDetails {
     id: number;
 }
+
+export type UserLoginData = {
+    username:string,
+    password:string
+}
+
+export type Tokens = {
+    access_token:string,
+    refresh_token:string
+}

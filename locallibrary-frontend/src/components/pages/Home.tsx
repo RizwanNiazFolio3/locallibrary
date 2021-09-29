@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react'
-import axiosInstance, {client} from "../../axios"
+import {client} from "../../axios"
 
 
 //After a successful api call, the data element should be populated as HomeData type
