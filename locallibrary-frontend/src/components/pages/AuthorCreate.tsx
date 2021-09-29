@@ -1,8 +1,9 @@
 import React, { ReactElement } from 'react'
-import AuthorForm, {AuthorDetails} from '../AuthorForm'
+import AuthorForm from '../AuthorForm'
 import {SubmitHandler} from 'react-hook-form'
 import axiosInstance from '../../axios'
 import {useHistory} from 'react-router-dom'
+import {AuthorDetails} from '../../CustomTypes'
 
 interface Props {
     

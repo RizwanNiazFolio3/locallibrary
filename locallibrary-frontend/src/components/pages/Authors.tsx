@@ -4,12 +4,13 @@ import React, {
     useContext,
 } from 'react'
 import axiosInstance from "../../axios"
-import AuthorListItem, { AuthorAttributes } from '../AuthorListItem'
+import AuthorListItem from '../AuthorListItem'
 import {
     Link,
     useRouteMatch
 } from 'react-router-dom'
 import {AuthContext} from "../../contexts/AuthContext"
+import { AuthorAttributes } from '../../CustomTypes'
 
 function Authors() {
     const {isLibrarian}: {isLibrarian: boolean} = useContext(AuthContext)

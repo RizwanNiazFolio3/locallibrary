@@ -1,6 +1,7 @@
 import axios, {AxiosInstance, AxiosRequestConfig} from 'axios'
-import { AuthorDetails } from './components/AuthorForm'
+import { AuthorDetails } from './CustomTypes'
 import { HomeData } from './components/pages/Home'
+import { AuthorAttributes } from './CustomTypes'
 
 export class APIClient{
 
@@ -42,6 +43,15 @@ export class APIClient{
 		.then(res=>{
 			let HomePageData:HomeData = res.data
 			return HomePageData
+		})
+	}
+
+	public GetAuthorsList(){
+		let authorList:AuthorAttributes[]
+		return APIClient.axiosInstance.get("/catalog/api/authors")
+		.then(response=>{
+			authorList = response.data
+			return authorList
 		})
 	}
 }

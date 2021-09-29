@@ -4,16 +4,9 @@ import {
     useRouteMatch
 } from "react-router-dom"
 import {AuthContext} from "../contexts/AuthContext"
-
+import { AuthorAttributes } from '../CustomTypes'
 
 // The attributes of a single author
-export type AuthorAttributes = {
-    id: number;
-    first_name: string;
-    last_name: string;
-    date_of_birth: string;
-    date_of_death: string;
-}
 
 
 // The properties received by this component

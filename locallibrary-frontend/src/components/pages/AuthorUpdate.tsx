@@ -7,9 +7,10 @@ import axiosInstance from '../../axios'
 import {
     useParams,
 } from 'react-router-dom'
-import AuthorForm, {AuthorDetails} from '../AuthorForm';
+import AuthorForm from '../AuthorForm';
 import {SubmitHandler} from 'react-hook-form'
 import {useHistory} from 'react-router-dom'
+import {AuthorDetails} from '../../CustomTypes'
 
 interface Props {
     
