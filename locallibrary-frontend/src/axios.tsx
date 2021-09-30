@@ -75,17 +75,32 @@ export class APIClient{
 		console.log(APIClient.axiosInstance.defaults.headers['Authorization'])
 	}
 
-	public Logout(){
+	public Logout():Promise<boolean>{
 		return APIClient.axiosInstance.post("/catalog/api/logout",{refresh : localStorage.getItem("refresh_token")})
+		.then(res=>{return true})
 	}
 
-	public PostAuthor(AuthorData:AuthorDetails){
+	public PostAuthor(AuthorData:AuthorDetails):Promise<Number>{
         return APIClient.axiosInstance.post('/catalog/api/authors/',AuthorData)
         .then(res =>{
             //Redirect to the details page of the currently created author
             const id:Number = res.data.id
             return id
         })
+	}
+
+	public DeleteAuthor(id:string):Promise<Boolean>{
+		return APIClient.axiosInstance.delete('/catalog/api/authors/' + id + "/")
+		.then(res=>{
+			return true
+		})
+	}
+
+	public PutAuthor(id:string,data:AuthorDetails):Promise<Boolean>{
+		return APIClient.axiosInstance.put("/catalog/api/authors/"+id+"/", data)
+		.then(res=>{
+			return true
+		})
 	}
 }
 

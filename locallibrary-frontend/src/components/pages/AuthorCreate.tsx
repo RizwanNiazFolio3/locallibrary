@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react'
 import AuthorForm from '../AuthorForm'
 import {SubmitHandler} from 'react-hook-form'
-import axiosInstance, {client} from '../../axios'
+import {client} from '../../axios'
 import {useHistory} from 'react-router-dom'
 import {AuthorDetails} from '../../CustomTypes'
 
