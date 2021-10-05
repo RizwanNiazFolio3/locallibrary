@@ -26,7 +26,8 @@ function AuthorDelete(props: Props): ReactElement {
             setFirstName(Author.first_name)
             setLastName(Author.last_name)
         })
-    },[id])
+    }
+    ,[id])
 
     //Deleting the author and then redirecting to the /authors page upon success
     function handleClick()

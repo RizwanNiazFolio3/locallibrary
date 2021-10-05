@@ -1,5 +1,5 @@
 import React, {useState,useContext} from 'react'
-import {client} from "../../axios"
+import {APIClient, client} from "../../axios"
 import {useHistory} from 'react-router-dom'
 import jwt_decode from 'jwt-decode'
 import { AuthContext, DecodedToken } from '../../contexts/AuthContext'
@@ -28,19 +28,11 @@ function Login() {
         }
         client.Login(data)
         .then(Token =>{
-            localStorage.setItem('access_token',Token.access_token)
-            localStorage.setItem('refresh_token',Token.refresh_token)
-            const tok: string | null = localStorage.getItem("access_token");
-            console.log(tok)
-            if(tok){
-                console.log('came here')
-                const decoded_token: DecodedToken = jwt_decode(tok)
+                const decoded_token: DecodedToken = jwt_decode(Token.access_token)
                 //passing the decoded access token to the AuthContext to get the state variables needed to render for the
                 //current user
                 LoginFunction(decoded_token)
-                client.SetAxiosHeaders("Bearer " + localStorage.getItem('access_token'))
                 history.push('/')
-            }
         })
 
 

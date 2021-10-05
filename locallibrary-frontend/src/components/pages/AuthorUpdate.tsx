@@ -47,7 +47,7 @@ function AuthorUpdate(props: Props): ReactElement {
      * @param data The AuthorDetails interface is defined in the AuthorForm component
      */
     const onSubmit: SubmitHandler<AuthorDetails> = data => {
-        client.PutAuthor(id,data)
+        client.PutAuthor(id,cleanData(data))
         .then(response =>{
             history.push('/authors/'+id)
         })

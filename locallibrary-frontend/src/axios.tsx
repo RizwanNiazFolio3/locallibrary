@@ -6,6 +6,7 @@ import {
 	UserLoginData,
 	Tokens
 } from './CustomTypes'
+import jwtDecode from 'jwt-decode'
 
 export class APIClient{
 
@@ -16,24 +17,26 @@ export class APIClient{
 		APIClient.axiosInstance = axios.create(options)
 	}
 
+	
 	public static getInstance(options:AxiosRequestConfig): APIClient{
 		if (!APIClient.instance){
 			APIClient.instance = new APIClient(options)
+			APIClient.instance.getInterceptors()
 		}
 		return APIClient.instance
 	}
-
+	
 	public GetAuthorDetails(id:string):Promise<AuthorDetails>{
 		return APIClient.axiosInstance.get("/catalog/api/authors/"+id)
 		.then(res=>{
-
+			
 			let author: AuthorDetails = {
 				first_name:null,
 				last_name:null,
 				date_of_death:null,
 				date_of_birth:null
 			}
-
+			
 			author.date_of_birth = res.data.date_of_birth 
 			author.date_of_death = res.data?.date_of_death
 			author.first_name = res.data?.first_name
@@ -41,7 +44,7 @@ export class APIClient{
 			return author
 		})
 	}
-
+	
 	public GetHomePageData():Promise<HomeData>{
 		return APIClient.axiosInstance.get("/catalog/api/home")
 		.then(res=>{
@@ -66,41 +69,86 @@ export class APIClient{
 				access_token:res.data.access,
 				refresh_token:res.data.refresh
 			}
+			localStorage.setItem('access_token',tokens.access_token)
+            localStorage.setItem('refresh_token',tokens.refresh_token)
+			APIClient.instance.SetAuthorizationHeaders('Bearer '+ tokens.access_token)
 			return tokens
         })
 	}
-
-	public SetAxiosHeaders(TokenHeader:String|null):void{
+	
+	private SetAuthorizationHeaders(TokenHeader:String|null):void{
 		APIClient.axiosInstance.defaults.headers['Authorization'] = TokenHeader
-		console.log(APIClient.axiosInstance.defaults.headers['Authorization'])
 	}
-
+	
 	public Logout():Promise<boolean>{
 		return APIClient.axiosInstance.post("/catalog/api/logout",{refresh : localStorage.getItem("refresh_token")})
-		.then(res=>{return true})
+		.then(res=>{
+            localStorage.removeItem('access_token')
+            localStorage.removeItem('refresh_token')
+			APIClient.instance.SetAuthorizationHeaders(null)
+			return true
+		})
 	}
-
+	
 	public PostAuthor(AuthorData:AuthorDetails):Promise<Number>{
-        return APIClient.axiosInstance.post('/catalog/api/authors/',AuthorData)
+		return APIClient.axiosInstance.post('/catalog/api/authors/',AuthorData)
         .then(res =>{
-            //Redirect to the details page of the currently created author
+			//Redirect to the details page of the currently created author
             const id:Number = res.data.id
             return id
         })
 	}
-
+	
 	public DeleteAuthor(id:string):Promise<Boolean>{
 		return APIClient.axiosInstance.delete('/catalog/api/authors/' + id + "/")
 		.then(res=>{
 			return true
 		})
 	}
-
+	
 	public PutAuthor(id:string,data:AuthorDetails):Promise<Boolean>{
 		return APIClient.axiosInstance.put("/catalog/api/authors/"+id+"/", data)
 		.then(res=>{
 			return true
 		})
+	}
+
+	
+	private UseRefreshToken(refreshToken:string):Promise<string>{
+		return APIClient.axiosInstance.post('/catalog/api/token/refresh/',{refresh : refreshToken})
+		.then(response=>{
+			const access_token:string = response.data.access
+			localStorage.setItem('access_token',access_token)
+			APIClient.instance.SetAuthorizationHeaders("Bearer " + access_token)
+			return access_token
+		})
+	}
+	private getInterceptors(){
+		console.log("Interceptors Set")
+		APIClient.axiosInstance.interceptors.response.use(
+			(response)=>{
+				return response
+			},
+			(error)=>{
+				const originalrequest = error.config
+				if(error.response){
+					if (error.response.status == 401 && !originalrequest._retry){
+						originalrequest._retry = true
+						const refreshToken = localStorage.getItem('refresh_token')
+						if (refreshToken != null){
+							return APIClient.instance.UseRefreshToken(refreshToken)
+							.then(access_token =>{
+								originalrequest.headers['Authorization'] = "Bearer " + access_token
+								return APIClient.axiosInstance(originalrequest) 
+							})
+						}
+						window.location.href = '/login'
+					}
+					return Promise.reject(error)
+				}
+				return Promise.reject(error)
+			}
+		)
 	}
 }
 
@@ -113,12 +161,12 @@ export const client = APIClient.getInstance({
 	timeout: 5000,
 	headers: {
 		Authorization: localStorage.getItem('access_token')
-			? localStorage.getItem('access_token')
+		? localStorage.getItem('access_token')
 			: null,
-		'Content-Type': 'application/json',
-		accept: 'application/json',
-	},
-	// transformResponse: [(response) =>{
+			'Content-Type': 'application/json',
+			accept: 'application/json',
+		},
+		// transformResponse: [(response) =>{
 	// 	return response.data
 	// }]
 })
