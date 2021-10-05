@@ -9,6 +9,13 @@ export type DecodedToken = {
     isAuthenticated: boolean;
 }
 
+export interface DecodedRefreshToken {
+    token_type:string,
+    exp:number,
+    jti:string,
+    user_id:number,
+    isLibrarian:boolean
+}
 
 // The attributes in context
 type ContextAttributes = {
@@ -64,6 +71,7 @@ function AuthContextProvider({children}: {children: JSX.Element[]}){
         setIsAuthenticated(true);
         setUser_Id(access_token.user_id);
         setIsLibrarian(access_token.isLibrarian);
+        console.log("This is also being called for some fucking reason")
     }
 
     //This is called when a user logs out
@@ -71,6 +79,8 @@ function AuthContextProvider({children}: {children: JSX.Element[]}){
         setIsAuthenticated(false);
         setUser_Id(-1);
         setIsLibrarian(false);
+        console.log("IsAUthenticated:",isAuthenticated)
+        console.log("This is being called (Logout function)")
     }
 
     return (

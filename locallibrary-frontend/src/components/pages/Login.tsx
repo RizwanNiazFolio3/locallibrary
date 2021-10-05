@@ -1,4 +1,4 @@
-import React, {useState,useContext} from 'react'
+import React, {useState,useContext,useEffect} from 'react'
 import {APIClient, client} from "../../axios"
 import {useHistory} from 'react-router-dom'
 import jwt_decode from 'jwt-decode'
@@ -15,10 +15,17 @@ function Login() {
      * The details of the user are stored in state with the help of the useContext hook
      */
     const {LoginFunction}: {LoginFunction: (arg0: DecodedToken) => void} = useContext(AuthContext)
+    const {LogoutFunction}: {LogoutFunction: () => void} = useContext(AuthContext)
+
 
     const history = useHistory()
     const [userName, setUserName]: [string, React.Dispatch<React.SetStateAction<string>>] = useState("")
     const [password, setPassword]: [string, React.Dispatch<React.SetStateAction<string>>] = useState("")
+
+    useEffect(()=>{
+        console.log("UseEffect hook is being used")
+        LogoutFunction()
+    },[])
 
     function handleSubmit(event: React.FormEvent<HTMLFormElement>){
         event.preventDefault();

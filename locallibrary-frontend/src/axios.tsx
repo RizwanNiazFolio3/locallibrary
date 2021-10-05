@@ -6,7 +6,8 @@ import {
 	UserLoginData,
 	Tokens
 } from './CustomTypes'
-import jwtDecode from 'jwt-decode'
+import jwt_decode from 'jwt-decode'
+import { DecodedRefreshToken, AuthContext } from './contexts/AuthContext'
 
 export class APIClient{
 
@@ -136,6 +137,14 @@ export class APIClient{
 						originalrequest._retry = true
 						const refreshToken = localStorage.getItem('refresh_token')
 						if (refreshToken != null){
+							const decoded_token:DecodedRefreshToken = jwt_decode(refreshToken)
+							if (decoded_token.exp < Math.ceil(Date.now() / 1000)){
+								localStorage.removeItem('refresh_token')
+								localStorage.removeItem('access_token')
+								window.location.href = '/login'
+
+							}
+							console.log(decoded_token)
 							return APIClient.instance.UseRefreshToken(refreshToken)
 							.then(access_token =>{
 								originalrequest.headers['Authorization'] = "Bearer " + access_token
