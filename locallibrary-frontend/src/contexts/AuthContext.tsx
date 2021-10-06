@@ -48,9 +48,7 @@ function AuthContextProvider({children}: {children: JSX.Element[]}){
 
 
     useEffect(() =>{
-
         const tok = localStorage.getItem('access_token');
-        
 
         if (tok != null){
             const decoded_tok: DecodedToken = jwt_decode(tok);
@@ -71,7 +69,6 @@ function AuthContextProvider({children}: {children: JSX.Element[]}){
         setIsAuthenticated(true);
         setUser_Id(access_token.user_id);
         setIsLibrarian(access_token.isLibrarian);
-        console.log("This is also being called for some fucking reason")
     }
 
     //This is called when a user logs out
@@ -79,8 +76,6 @@ function AuthContextProvider({children}: {children: JSX.Element[]}){
         setIsAuthenticated(false);
         setUser_Id(-1);
         setIsLibrarian(false);
-        console.log("IsAUthenticated:",isAuthenticated)
-        console.log("This is being called (Logout function)")
     }
 
     return (

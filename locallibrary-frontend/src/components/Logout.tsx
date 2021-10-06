@@ -1,5 +1,5 @@
 import React, {useContext} from 'react'
-import {client,APIClient} from '../axios'
+import {client} from '../axios'
 import {useHistory} from "react-router-dom"
 import {AuthContext} from "../contexts/AuthContext"
 

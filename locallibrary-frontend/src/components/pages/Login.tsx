@@ -1,5 +1,5 @@
 import React, {useState,useContext,useEffect} from 'react'
-import {APIClient, client} from "../../axios"
+import {client} from "../../axios"
 import {useHistory} from 'react-router-dom'
 import jwt_decode from 'jwt-decode'
 import { AuthContext, DecodedToken } from '../../contexts/AuthContext'
@@ -16,18 +16,24 @@ function Login() {
      */
     const {LoginFunction}: {LoginFunction: (arg0: DecodedToken) => void} = useContext(AuthContext)
     const {LogoutFunction}: {LogoutFunction: () => void} = useContext(AuthContext)
-
+    const {isAuthenticated}: {isAuthenticated: boolean} = useContext(AuthContext)
 
     const history = useHistory()
     const [userName, setUserName]: [string, React.Dispatch<React.SetStateAction<string>>] = useState("")
     const [password, setPassword]: [string, React.Dispatch<React.SetStateAction<string>>] = useState("")
 
     useEffect(()=>{
-        console.log("UseEffect hook is being used")
-        LogoutFunction()
+        if (isAuthenticated){
+            console.log("This happens")
+            LogoutFunction()
+        }
+    //The comment below disables the warning that is generated for not including isAuthenticated and LogoutFunction() 
+    //in the parameter list
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     },[])
 
-    function handleSubmit(event: React.FormEvent<HTMLFormElement>){
+   function handleSubmit(event: React.FormEvent<HTMLFormElement>){
         event.preventDefault();
         const data:UserLoginData = {
             username: userName,
