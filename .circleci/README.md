@@ -1,3 +1,4 @@
+### Basic circleci instalation
 A new folder called .circleci was added to the root of the project, this folder contains the config.yml file which tells circleci how to configure and run tests on our project.
 
 The steps taken to configure circleci were as follows:
@@ -16,3 +17,18 @@ A template config.yml file for python should be displayed. Each projects config.
 After that, clicking on commit and run creates a new branch on the project using the main branch as a base. We can then create a pull request to merge these changes into main.
 
 All future PRs will then run the tests of the branch that is being merged into the base branch.
+
+### If the config.yml file already exists:
+Simply create a new branch, containing the .circlci folder as shown here
+![folder](https://user-images.githubusercontent.com/85993939/136382720-6aee6056-f3ca-4992-934d-8a58c568adb9.JPG)
+This folder should simply contain the config.yml file needed to run circleci
+![configYML](https://user-images.githubusercontent.com/85993939/136382754-7d5c11ee-ee70-4ce8-9e95-a33fafe17041.JPG)
+
+push this branch to the origin remote and then go to the circleci website and login with github
+You should see a list of all of your repositories.
+Click on the repository you want to add continuous integration to and you should be shown a modal window like this
+![CirclCItest](https://user-images.githubusercontent.com/85993939/136383360-9d1c92b0-97c4-4ccd-8a10-96ae8f28ec04.JPG)
+
+Choose the second option, if you have not merged the branch to main, you may need to select a different branch in the textbox shown.
+
+Simply clicking on let's go should install circle ci to the repo.
