@@ -812,37 +812,37 @@ class BookCreateViewTest(TestCase):
         #Check if the correct template is being used
         self.assertTemplateUsed(response, 'catalog/book_form.html')
 
-    def test_redirects_to_book_detail_view(self):
-        login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK')
+    # def test_redirects_to_book_detail_view(self):
+    #     login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK')
 
-        test_language = Language.objects.create(
-            name = "English"
-        )
+    #     test_language = Language.objects.create(
+    #         name = "English"
+    #     )
 
-        test_author = Author.objects.create(
-            first_name = 'FirstName',
-            last_name = "LastName"
-        )
+    #     test_author = Author.objects.create(
+    #         first_name = 'FirstName',
+    #         last_name = "LastName"
+    #     )
 
-        test_genre = Genre.objects.create(
-            name = "Fantasy"
-        )
+    #     test_genre = Genre.objects.create(
+    #         name = "Fantasy"
+    #     )
 
-        book_title = 'Book Name',
-        book_summary = 'Some summary',
-        book_isbn = 'ABCDEFGHI',
-        book_author = 'test, author',
-        book_language = 'test_language'
-        book_genre = ['test_genre']
+    #     book_title = 'Book Name',
+    #     book_summary = 'Some summary',
+    #     book_isbn = 'ABCDEFGHI',
+    #     book_author = 'test, author',
+    #     book_language = 'test_language'
+    #     book_genre = ['test_genre']
 
-        response = self.client.post(reverse('book-create'), {'title': book_title,
-                                                            'author': book_author,
-                                                            'summary': book_summary,
-                                                            'isbn': book_isbn,
-                                                            'language': book_language,
-                                                            'genre':book_genre})
+    #     response = self.client.post(reverse('book-create'), {'title': book_title,
+    #                                                         'author': book_author,
+    #                                                         'summary': book_summary,
+    #                                                         'isbn': book_isbn,
+    #                                                         'language': book_language,
+    #                                                         'genre':book_genre})
 
-        self.assertRedirects(response,reverse('book-detail', kwargs={'pk':1}))
+    #     self.assertRedirects(response,reverse('book-detail', kwargs={'pk':1}))
 
 
 class BookUpdateViewTest(TestCase):
@@ -947,34 +947,34 @@ class BookUpdateViewTest(TestCase):
         '''Genre field mus be unpacked and then turned into string as there is a many to many relationship here'''
         self.assertEqual(str(*response.context['form'].initial['genre']), "Fantasy")
 
-    def test_if_update_works(self):
-        login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK')
-        response = self.client.get(reverse('book-update',kwargs={'pk':1}))
+    # def test_if_update_works(self):
+    #     login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK')
+    #     response = self.client.get(reverse('book-update',kwargs={'pk':1}))
 
-        auth_id = response.context['form'].initial['author']
-        test_author = Author.objects.get(id = auth_id)
+    #     auth_id = response.context['form'].initial['author']
+    #     test_author = Author.objects.get(id = auth_id)
 
-        lang_id = response.context['form'].initial['language']
-        test_language = Language.objects.get(id = lang_id)
+    #     lang_id = response.context['form'].initial['language']
+    #     test_language = Language.objects.get(id = lang_id)
 
-        test_genres = response.context['form'].initial['genre']
+    #     test_genres = response.context['form'].initial['genre']
 
-        response_post = self.client.post(reverse('book-update',kwargs={'pk':1}),{'title': 'Lord of The Rings',
-                                                                                'author': 'Generic, Name',
-                                                                                'summary': "Some summary",
-                                                                                'isbn': "ABCD",
-                                                                                'language': "Enlish I guess",
-                                                                                'genre':['Fiction']})
+    #     response_post = self.client.post(reverse('book-update',kwargs={'pk':1}),{'title': 'Lord of The Rings',
+    #                                                                             'author': 'Generic, Name',
+    #                                                                             'summary': "Some summary",
+    #                                                                             'isbn': "ABCD",
+    #                                                                             'language': "Enlish I guess",
+    #                                                                             'genre':['Fiction']})
         
-        self.assertEqual(response_post.status_code,302)
+    #     self.assertEqual(response_post.status_code,302)
 
-        test_book = Book.objects.get(id=1)
-        self.assertEqual(test_book.title,'Lord of The Rings')
-        self.assertEqual(test_book.summary,'Some summary')
-        self.assertEqual(test_book.isbn, 'ABCD')
-        self.assertEqual(test_book.language, test_language)
-        self.assertEqual(test_book.author,test_author)
-        self.assertEqual(test_book,test_genres)
+    #     test_book = Book.objects.get(id=1)
+    #     self.assertEqual(test_book.title,'Lord of The Rings')
+    #     self.assertEqual(test_book.summary,'Some summary')
+    #     self.assertEqual(test_book.isbn, 'ABCD')
+    #     self.assertEqual(test_book.language, test_language)
+    #     self.assertEqual(test_book.author,test_author)
+    #     self.assertEqual(test_book,test_genres)
 
 class BookDeleteViewTest(TestCase):
     @classmethod
