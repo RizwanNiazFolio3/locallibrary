@@ -1,5 +1,5 @@
 import React, {useContext} from 'react'
-import {Axioslogout} from '../axios'
+import {AxiosLogout} from '../axios'
 import {useHistory} from "react-router-dom"
 import {AuthContext} from "../contexts/AuthContext"
 import History from 'history'
@@ -14,7 +14,7 @@ function Logout() {
     //Upon logout, the access tokens and refresh tokens are deleted and the current refresh token is added to
     //A blacklist to prevent it from being used
     function handleClick(){
-        Axioslogout(history ,LogoutFunction);
+        AxiosLogout(history ,LogoutFunction);
     }
 
     return (

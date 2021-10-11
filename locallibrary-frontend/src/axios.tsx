@@ -20,7 +20,7 @@ const axiosInstance = axios.create({
 	},
 });
 
-export function Axioslogout(history: History.History, LogoutFunction: LogoutFunctionType){
+export function AxiosLogout(history: History.History, LogoutFunction: LogoutFunctionType){
 	//The logout api endpoint takes the current refresh token and adds it to the blacklist
 	axiosInstance.post("/catalog/api/logout",{refresh : localStorage.getItem("refresh_token")})
 	.then((res) =>{

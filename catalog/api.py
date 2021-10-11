@@ -7,8 +7,6 @@ from rest_framework.request import Request
 from django.contrib.auth.models import User
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.views import  APIView
-from .serializers import BookSerializer
-from .models import Book
 
 
 class BookViewSet(viewsets.ModelViewSet):
@@ -99,11 +97,3 @@ class HomePageApiView(APIView):
         result = HomePageSerializer(home_page_data).data
 
         return Response(result)
-
-
-class BookViewSet(viewsets.ModelViewSet):
-    """This viewset provides create, retrieve, update and delete apis for books"""
-
-
-    queryset = Book.objects.all()
-    serializer_class = BookSerializer

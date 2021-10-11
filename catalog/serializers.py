@@ -4,8 +4,6 @@ from django.contrib.auth.models import User, Group
 from .models import Book
 
 
-
-
 class AuthorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Author
@@ -59,13 +57,3 @@ class HomePageSerializer(serializers.Serializer):
     num_fantasy_genres = serializers.IntegerField()
     num_lotr_books = serializers.IntegerField()
     num_authors = serializers.IntegerField()
-
-    
-class BookSerializer(serializers.ModelSerializer):
-    """This class converts model"""
-
-    class Meta:
-        model = Book
-        fields = '__all__'
-
-

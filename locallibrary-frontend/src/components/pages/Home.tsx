@@ -3,7 +3,7 @@ import {HomePage} from "../../axios"
 
 
 //After a successful api call, the data element should be populated as HomeData type
-export type HomeData = {
+export interface HomeData {
     num_authors: number;
     num_books: number;
     num_fantasy_genres: number;
