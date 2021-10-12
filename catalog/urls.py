@@ -5,6 +5,7 @@ from .api  import AuthorViewSet, RegisterApiView, BlacklistRefreshView, Register
 from rest_framework_simplejwt.views import TokenRefreshView
 from . import custom_tokens
 
+
 router = routers.DefaultRouter()
 router.register('api/authors',AuthorViewSet,'author-api')
 router.register('api/books',BookViewSet,'book-api')

@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react'
+import {useEffect, useState} from 'react'
 import {
     useParams
   } from "react-router-dom";
@@ -8,7 +8,7 @@ import {
 
 function AuthorDetails() {
     //Getting the id of the author from the url of the current page as a parameter
-    let {id} = useParams();
+    let {id}:{id: string} = useParams();
 
     const [firstName,setFirstName] = useState("")
     const [lastName,setLastName] = useState("")

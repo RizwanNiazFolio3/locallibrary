@@ -97,5 +97,3 @@ class HomePageApiView(APIView):
         result = HomePageSerializer(home_page_data).data
 
         return Response(result)
-
-

@@ -1,20 +1,25 @@
 import React, {useState,useContext} from 'react'
 import {GetToken} from "../../axios"
 import {useHistory} from 'react-router-dom'
-import { AuthContext } from '../../contexts/AuthContext'
+import jwt_decode from 'jwt-decode'
+import { AuthContext, DecodedToken } from '../../contexts/AuthContext'
+
+
+
+
 
 function Login() {
     /**
      * When the users credentials are authenticated, the refresh token and access token are stored in localstorage.
      * The details of the user are stored in state with the help of the useContext hook
      */
-    const {LoginFunction} = useContext(AuthContext)
+    const {LoginFunction}: {LoginFunction: (arg0: DecodedToken) => void} = useContext(AuthContext)
 
     const history = useHistory()
-    const [userName, setUserName] = useState("")
-    const [password, setPassword] = useState("")
+    const [userName, setUserName]: [string, React.Dispatch<React.SetStateAction<string>>] = useState("")
+    const [password, setPassword]: [string, React.Dispatch<React.SetStateAction<string>>] = useState("")
 
-    function handleSubmit(event){
+    function handleSubmit(event: React.FormEvent<HTMLFormElement>){
         event.preventDefault();
         const data = {
             username: userName,

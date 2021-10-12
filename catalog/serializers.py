@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from catalog.models import Author, Book
 from django.contrib.auth.models import User, Group
+from .models import Book
 
 
 class AuthorSerializer(serializers.ModelSerializer):
@@ -56,5 +57,3 @@ class BookSerializer(serializers.ModelSerializer):
     class Meta:
         model = Book
         fields = '__all__'
-
-

@@ -1,5 +1,10 @@
 import axios from 'axios'
 import jwt_decode from 'jwt-decode'
+import History from 'history'	// Importing type of history
+import { LogoutFunctionType } from './components/Logout';
+import { Dispatch, SetStateAction } from 'react';
+import { DecodedToken } from './contexts/AuthContext';
+import { HomeData } from './components/pages/Home';
 
 const axiosInstance = axios.create({
 	/**
@@ -12,10 +17,10 @@ const axiosInstance = axios.create({
 		Authorization: localStorage.getItem('access_token'),
 		'Content-Type': 'application/json',
 		accept: 'application/json',
-	}, 
+	},
 });
 
-export function Axioslogout(history,LogoutFunction){
+export function AxiosLogout(history: History.History, LogoutFunction: LogoutFunctionType){
 	//The logout api endpoint takes the current refresh token and adds it to the blacklist
 	axiosInstance.post("/catalog/api/logout",{refresh : localStorage.getItem("refresh_token")})
 	.then((res) =>{
@@ -31,11 +36,11 @@ export function Axioslogout(history,LogoutFunction){
 }
 
 export function GetAuthorDetails(
-	id,
-	setFirstName,
-	setLastName,
-	setDateOfBirth,
-	setDateOfDeath){
+	id: string,
+	setFirstName: Dispatch<SetStateAction<string>>,
+	setLastName: Dispatch<SetStateAction<string>>,
+	setDateOfBirth: Dispatch<SetStateAction<string>>,
+	setDateOfDeath: Dispatch<SetStateAction<string>>){
 	axiosInstance.get("/catalog/api/authors/"+id)
 	.then(response =>{
 		setFirstName(response.data.first_name)
@@ -45,7 +50,7 @@ export function GetAuthorDetails(
 	})
 }
 
-export function GetAuthors(setAuthorList){
+export function GetAuthors(setAuthorList: React.Dispatch<React.SetStateAction<never[]>>){
 	/**
 	 * Since we've added "proxy": "http://127.0.0.1:8000/", to packages.json,
 	 * We do not need to use the full URL and instead a relative URL can be used to access the endpoint
@@ -57,7 +62,7 @@ export function GetAuthors(setAuthorList){
 		)
 }
 
-export function HomePage(setData){
+export function HomePage(setData: React.Dispatch<React.SetStateAction<HomeData>>){
 	/**
 	 * Since we've added "proxy": "http://127.0.0.1:8000/", to packages.json,
 	 * We do not need to use the full URL and instead a relative URL can be used to access the endpoint
@@ -69,7 +74,7 @@ export function HomePage(setData){
 		) //This should define how the app behaves if the api get request fails
 }
 
-export function GetToken(data,history,LoginFunction){
+export function GetToken(data: {}, history: History.History, LoginFunction: (arg0: DecodedToken) => void){
 	axiosInstance.post("/catalog/api/token/",data)
 	.then((res) =>{
 		//Storing the access and refresh tokens.
@@ -77,10 +82,14 @@ export function GetToken(data,history,LoginFunction){
 		localStorage.setItem('refresh_token',res.data.refresh)
 		//passing the decoded access token to the AuthContext to get the state variables needed to render for the
 		//current user
-		const decoded_token = jwt_decode(localStorage.getItem("access_token"))
-		LoginFunction(decoded_token)
-		axiosInstance.defaults.headers['Authorization'] = "Bearer " + localStorage.getItem('access_token')
-		history.push('/')
+		const access_token = localStorage.getItem("access_token")
+
+		if(access_token){
+			const decoded_token: DecodedToken = jwt_decode(access_token)
+			LoginFunction(decoded_token)
+			axiosInstance.defaults.headers['Authorization'] = "Bearer " + localStorage.getItem('access_token')
+			history.push('/')
+		}
 	})
 }
 

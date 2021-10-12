@@ -1,12 +1,12 @@
 import React, {useEffect, useState} from 'react'
+import AuthorListItem, { Author } from '../AuthorListItem'
 import {GetAuthors} from "../../axios"
-import AuthorListItem from '../AuthorListItem'
 import {
     useRouteMatch
 } from 'react-router-dom'
 
 function Authors() {
-    let {url} = useRouteMatch();
+    let {url}: {url: string} = useRouteMatch();
     /**
      * This renders the list of authors page.
      * It makes a get request to the authors api end point and saves
@@ -15,7 +15,7 @@ function Authors() {
      * as props.
      * The error handling for this component has not been implemented yet.
      */
-    const [authorList, setAuthorList] = useState([""])
+    const [authorList, setAuthorList]: [Author[], React.Dispatch<React.SetStateAction<never[]>>] = useState([])
 
     //When the page first loads up, make an api call to recieve a list of author objects
     //and save it in the state.
@@ -24,7 +24,7 @@ function Authors() {
     },[])
 
     //This function returns the AuthorListItem components. It is called in the return statement
-    function setAuthorListItemComponent(authorList){
+    function setAuthorListItemComponent(authorList: Author[]){
         /**
          * Here we use the map method to individually pass the author objects in the authorList as props 
          * to the AuthorListItem component. This gives us a list of such components.
@@ -36,7 +36,7 @@ function Authors() {
          * renders the component again. As a result, when the component is first rendered, the authorList is not yet populated and
          * is thus empty. Which is why we need to use the ternary operator here to avoid any missing key warnings React might give us
          */
-        const authorListItemComponent = authorList.map(author => {
+        const authorListItemComponent: JSX.Element[] = authorList.map(author => {
             if (author.id == null){
                 return (
                     <li key = {null}>
@@ -52,7 +52,7 @@ function Authors() {
                         <AuthorListItem 
                             key = {author.id} 
                             item = {author} 
-                            linksto = {`${url}/${parseInt(author.id)}`} 
+                            linksto = {`${url}/${author.id}`} 
                         />
                     </li>
                 ) 
