@@ -1,12 +1,12 @@
 import { BookAttributes } from './BookListContainer'
 import { Link } from 'react-router-dom'
-import { AuthorAttributes } from '../AuthorListItem';
+import { Author } from '../AuthorListItem';
 import { GenreMap, LanguageAttributes } from './BookDetailsContainer';
 
 
 type BookDetailsPresentationProps = {
     book: BookAttributes;
-    author: AuthorAttributes;
+    author: Author;
     language: LanguageAttributes;
     genres: GenreMap;
 }
