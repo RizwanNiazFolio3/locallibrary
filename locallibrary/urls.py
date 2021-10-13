@@ -31,6 +31,10 @@ urlpatterns = [
 ]
 
 urlpatterns += [
+    path('catalog/', include('catalog.app_urls')),
+]
+
+urlpatterns += [
     path('catalog/', include('catalog.urls')),
 ]
 

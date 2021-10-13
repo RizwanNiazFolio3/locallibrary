@@ -17,10 +17,23 @@ from .serializers import (
 )
 from .permissions import IsLibrarian, OnlyLibrarians, JWT_authenticator #importing our custom permissions
 from rest_framework.response import Response
+from rest_framework.request import Request
 from django.contrib.auth.models import User
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.views import  APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
+
+
+class BookViewSet(viewsets.ModelViewSet):
+    """This viewset provides create, retrieve, update and delete apis for books"""
+
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+    
+    permission_classes = [
+        IsLibrarian
+    ]
+
 
 class AuthorViewSet(viewsets.ModelViewSet):
     queryset = Author.objects.all()
@@ -36,7 +49,7 @@ class BlacklistRefreshView(APIView):
     permission_classes = [
         permissions.IsAuthenticated
     ]
-    def post(self, request):
+    def post(self, request: Request) -> Response:
         token = RefreshToken(request.data.get('refresh'))
         token.blacklist()
         return Response("Success")
@@ -49,7 +62,7 @@ class RegisterApiView(generics.GenericAPIView):
         permissions.AllowAny
     ]
     serializer_class = RegisterSerializer
-    def post(self, request, *args,  **kwargs):
+    def post(self, request: Request) -> Response:
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
@@ -128,10 +141,3 @@ class AllBorrowedBooksApiViewset(
 
     queryset = BookInstance.objects.filter(status__exact = 'o').order_by('due_back')
     serializer_class = BookInstanceSerializer
-
-class BookViewSet(viewsets.ModelViewSet):
-    """This viewset provides create, retrieve, update and delete apis for books"""
-
-
-    queryset = Book.objects.all()
-    serializer_class = BookSerializer
