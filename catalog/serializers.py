@@ -1,8 +1,7 @@
 from rest_framework import serializers
 from rest_framework.relations import StringRelatedField
-from catalog.models import Author, BookInstance, Book
+from catalog.models import Author, BookInstance, Book, Genre, Language
 from django.contrib.auth.models import User, Group
-from .models import Book, Genre, Language
 
 
 class AuthorSerializer(serializers.ModelSerializer):
