@@ -1,13 +1,33 @@
 from rest_framework import serializers
 from rest_framework.relations import StringRelatedField
-from catalog.models import Author, BookInstance, Book
+from catalog.models import Author, BookInstance, Book, Genre, Language
 from django.contrib.auth.models import User, Group
-from .models import Book
 
 
 class AuthorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Author
+        fields = '__all__'
+
+
+class BookSerializer(serializers.ModelSerializer):
+    """This class converts model"""
+
+    class Meta:
+        model = Book
+        fields = '__all__'
+
+
+class GenreSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Genre
+        fields = '__all__'
+
+class LanguageSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Language
         fields = '__all__'
 
 
@@ -58,10 +78,3 @@ class BookInstanceSerializer(serializers.ModelSerializer):
         model = BookInstance
         fields = ['id','book','due_back','borrower']
     
-    
-class BookSerializer(serializers.ModelSerializer):
-    """This class converts model"""
-
-    class Meta:
-        model = Book
-        fields = '__all__'

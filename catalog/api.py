@@ -1,5 +1,5 @@
 from rest_framework.serializers import ModelSerializer
-from catalog.models import Author, Book, BookInstance, Genre
+from catalog.models import Author, Book, BookInstance, Genre, Language
 from rest_framework import (
     generics, 
     viewsets, 
@@ -7,7 +7,9 @@ from rest_framework import (
     mixins,
 )
 from .serializers import (
-    AuthorSerializer, 
+    AuthorSerializer,
+    GenreSerializer,
+    LanguageSerializer, 
     RegisterSerializer, 
     UserSerializer, 
     RegisterLibrarianSerializer, 
@@ -153,3 +155,23 @@ class AllBorrowedBooksApiViewset(
 
     queryset = BookInstance.objects.filter(status__exact = 'o').order_by('due_back')
     serializer_class = BookInstanceSerializer
+
+
+class GenreViewSet(viewsets.ModelViewSet):
+    """This viewset provides create, retrieve, update and delete apis for genre"""
+
+    permission_classes = [
+        IsLibrarian
+    ]
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
+
+
+class LanguageViewSet(viewsets.ModelViewSet):
+    """This viewset provides create, retrieve, update and delete apis for language"""
+
+    permission_classes = [
+        IsLibrarian
+    ]
+    queryset = Language.objects.all()
+    serializer_class = LanguageSerializer
