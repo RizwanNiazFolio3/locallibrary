@@ -1,12 +1,29 @@
+from rest_framework.serializers import ModelSerializer
 from catalog.models import Author, Book, BookInstance, Genre
-from rest_framework import generics, viewsets, permissions
-from .serializers import AuthorSerializer, RegisterSerializer, UserSerializer, RegisterLibrarianSerializer, HomePageSerializer, BookSerializer
-from .permissions import IsLibrarian #importing our custom permission
+from rest_framework import (
+    generics, 
+    viewsets, 
+    permissions, 
+    mixins,
+)
+from .serializers import (
+    AuthorSerializer, 
+    RegisterSerializer, 
+    UserSerializer, 
+    RegisterLibrarianSerializer, 
+    HomePageSerializer,
+    BookInstanceSerializer,
+    BookSerializer,
+)
+from .permissions import IsLibrarian, OnlyLibrarians, JWT_authenticator #importing our custom permissions
 from rest_framework.response import Response
 from rest_framework.request import Request
 from django.contrib.auth.models import User
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.views import  APIView
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework import status
+
 
 
 class BookViewSet(viewsets.ModelViewSet):
@@ -97,3 +114,42 @@ class HomePageApiView(APIView):
         result = HomePageSerializer(home_page_data).data
 
         return Response(result)
+
+class UserBorrowedBooksApiView(APIView):
+    permission_classes = [
+        permissions.IsAuthenticated
+    ]
+
+    serializer_class = BookInstanceSerializer
+    JWT_authenticator = JWTAuthentication()
+
+    def get(self, request, pk):
+        '''This gets the books borrowed by a specific user'''
+        #Getting the username from the provided access token
+        user, _ = self.JWT_authenticator.authenticate(request)
+
+        #if the username does not match the userid provided in the api url, 
+        #Then the request is unauthorized and returns status code 401 
+        if (user != User.objects.get(id=pk)): 
+            return_message = {'Error_message':'The userID does not match authorization credentials'}
+            return Response(return_message,status=status.HTTP_401_UNAUTHORIZED)
+
+        #Get the books borrowed by this user and return them
+        query_set = BookInstance.objects.filter(borrower=user).filter(status__exact='o').order_by('due_back')
+        serializer = self.serializer_class(query_set,many=True)
+
+        return Response(serializer.data)
+
+class AllBorrowedBooksApiViewset(
+    mixins.RetrieveModelMixin,
+    mixins.ListModelMixin,
+    mixins.UpdateModelMixin,
+    viewsets.GenericViewSet
+    ):
+
+    permission_classes = [
+        OnlyLibrarians,
+    ]
+
+    queryset = BookInstance.objects.filter(status__exact = 'o').order_by('due_back')
+    serializer_class = BookInstanceSerializer

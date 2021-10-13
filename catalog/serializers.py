@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from catalog.models import Author, Book
+from rest_framework.relations import StringRelatedField
+from catalog.models import Author, BookInstance, Book
 from django.contrib.auth.models import User, Group
 from .models import Book
 
@@ -50,6 +51,13 @@ class HomePageSerializer(serializers.Serializer):
     num_lotr_books = serializers.IntegerField()
     num_authors = serializers.IntegerField()
 
+class BookInstanceSerializer(serializers.ModelSerializer):
+    book = serializers.StringRelatedField()
+    borrower = serializers.StringRelatedField()
+    class Meta:
+        model = BookInstance
+        fields = ['id','book','due_back','borrower']
+    
     
 class BookSerializer(serializers.ModelSerializer):
     """This class converts model"""

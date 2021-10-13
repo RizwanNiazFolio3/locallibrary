@@ -33,3 +33,24 @@ class IsLibrarian(permissions.BasePermission):
                     if request.user.groups.filter(name="Librarians"):
                         return True      
         return False
+
+class OnlyLibrarians(permissions.BasePermission):
+    def has_permission(self,request,view):
+        response = JWT_authenticator.authenticate(request)
+        if response is not None:
+            # unpacking, we only need the token
+            _ , token = response
+            #Checking if the token mentions that the user is librarian
+            librarian_status = token.payload['isLibrarian']
+            '''
+            Since tokens are only active for 5 minutes,
+            It is possible that within the time the token was created the user is no longer a librarian.
+            '''
+            if librarian_status == True:
+                if request.user.groups.filter(name="Librarians"):
+                    return True
+        return False
+
+
+
+
