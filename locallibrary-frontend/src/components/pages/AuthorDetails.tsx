@@ -1,9 +1,9 @@
-import React, {useEffect, useState} from 'react'
+import {useEffect, useState} from 'react'
 import {
     useParams
   } from "react-router-dom";
   
-  import axiosInstance from '../../axios';
+  import {GetAuthorDetails} from '../../axios';
 
 
 function AuthorDetails() {
@@ -17,13 +17,7 @@ function AuthorDetails() {
 
     //Getting the details of a specific author from the api endpoint
     useEffect(() => {
-        axiosInstance.get("/catalog/api/authors/"+id)
-        .then(response =>{
-            setFirstName(response.data.first_name)
-            setLastName(response.data.last_name)
-            setDateOfBirth(response.data.date_of_birth)
-            setDateOfDeath(response.data.date_of_death)
-        })
+        GetAuthorDetails(id,setFirstName,setLastName,setDateOfBirth,setDateOfDeath)
     },[id])
     //Rendering out the Author page. 
     //The Book Description portion is a placeholder as the api to get the books for an author has not been made yet
