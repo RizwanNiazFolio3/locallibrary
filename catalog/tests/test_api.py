@@ -1181,22 +1181,22 @@ class UserBorrowedBooksAPIViewTest(APITestCase):
 
     def test_get_my_books_without_authorization(self):
         '''Trying to get books borrowed without giving authentication credentials'''
-        response = self.client.get('http://127.0.0.1:8000/catalog/api/mybooks')
+        response = self.client.get('http://127.0.0.1:8000/catalog/api/users/1/books')
         self.assertEqual(response.status_code,401)
 
     def test_put_my_books_without_authorization(self):
         '''Trying to perform a PUT requests without authorization'''
-        response = self.client.put('http://127.0.0.1:8000/catalog/api/mybooks')
+        response = self.client.put('http://127.0.0.1:8000/catalog/api/users/1/books')
         self.assertEqual(response.status_code,401)
 
     def test_post_my_books_without_authorization(self):
         '''Tests trying to perform POST request without authorization'''
-        response = self.client.post('http://127.0.0.1:8000/catalog/api/mybooks')
+        response = self.client.post('http://127.0.0.1:8000/catalog/api/users/1/books')
         self.assertEqual(response.status_code,401)
 
     def test_delete_my_books_without_authorization(self):
         '''Tests Trying to perform DELETE request without authorization'''
-        response = self.client.delete('http://127.0.0.1:8000/catalog/api/mybooks')
+        response = self.client.delete('http://127.0.0.1:8000/catalog/api/users/1/books')
         self.assertEqual(response.status_code,401)
 
     def test_get_my_books_response_user_1(self):
@@ -1217,7 +1217,7 @@ class UserBorrowedBooksAPIViewTest(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token}')
         
         response = self.client.get(
-            'http://127.0.0.1:8000/catalog/api/mybooks',
+            'http://127.0.0.1:8000/catalog/api/users/1/books',
             format="json")
         
         self.assertEqual(response.status_code,200)
@@ -1241,7 +1241,7 @@ class UserBorrowedBooksAPIViewTest(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token}')
         
         response = self.client.get(
-            'http://127.0.0.1:8000/catalog/api/mybooks',
+            'http://127.0.0.1:8000/catalog/api/users/1/books',
             format="json")
         
         response_body = response.json()
@@ -1284,7 +1284,7 @@ class UserBorrowedBooksAPIViewTest(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token}')
         
         response = self.client.post(
-            'http://127.0.0.1:8000/catalog/api/mybooks',
+            'http://127.0.0.1:8000/catalog/api/users/1/books',
             format="json")
         
         self.assertEqual(response.status_code,405)
@@ -1307,7 +1307,7 @@ class UserBorrowedBooksAPIViewTest(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token}')
         
         response = self.client.put(
-            'http://127.0.0.1:8000/catalog/api/mybooks',
+            'http://127.0.0.1:8000/catalog/api/users/1/books',
             format="json")
         
         self.assertEqual(response.status_code,405)
@@ -1330,7 +1330,7 @@ class UserBorrowedBooksAPIViewTest(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token}')
         
         response = self.client.delete(
-            'http://127.0.0.1:8000/catalog/api/mybooks',
+            'http://127.0.0.1:8000/catalog/api/users/1/books',
             format="json")
         
         self.assertEqual(response.status_code,405)
@@ -1353,7 +1353,7 @@ class UserBorrowedBooksAPIViewTest(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token}')
         
         response = self.client.get(
-            'http://127.0.0.1:8000/catalog/api/mybooks',
+            'http://127.0.0.1:8000/catalog/api/users/2/books',
             format="json")
         
         self.assertEqual(response.status_code,200)
@@ -1376,7 +1376,7 @@ class UserBorrowedBooksAPIViewTest(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token}')
         
         response = self.client.get(
-            'http://127.0.0.1:8000/catalog/api/mybooks',
+            'http://127.0.0.1:8000/catalog/api/users/2/books',
             format="json")
         
         response_body = response.json()
@@ -1412,7 +1412,7 @@ class UserBorrowedBooksAPIViewTest(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token}')
         
         response = self.client.post(
-            'http://127.0.0.1:8000/catalog/api/mybooks',
+            'http://127.0.0.1:8000/catalog/api/users/2/books',
             format="json")
         
         self.assertEqual(response.status_code,405)
@@ -1435,7 +1435,7 @@ class UserBorrowedBooksAPIViewTest(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token}')
         
         response = self.client.put(
-            'http://127.0.0.1:8000/catalog/api/mybooks',
+            'http://127.0.0.1:8000/catalog/api/users/2/books',
             format="json")
         
         self.assertEqual(response.status_code,405)
@@ -1458,7 +1458,7 @@ class UserBorrowedBooksAPIViewTest(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token}')
         
         response = self.client.delete(
-            'http://127.0.0.1:8000/catalog/api/mybooks',
+            'http://127.0.0.1:8000/catalog/api/users/2/books',
             format="json")
         
         self.assertEqual(response.status_code,405)
@@ -1481,7 +1481,7 @@ class UserBorrowedBooksAPIViewTest(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token}')
         
         response = self.client.get(
-            'http://127.0.0.1:8000/catalog/api/mybooks',
+            'http://127.0.0.1:8000/catalog/api/users/3/books',
             format="json")
         
         self.assertEqual(response.status_code,200)
@@ -1504,7 +1504,7 @@ class UserBorrowedBooksAPIViewTest(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token}')
         
         response = self.client.get(
-            'http://127.0.0.1:8000/catalog/api/mybooks',
+            'http://127.0.0.1:8000/catalog/api/users/3/books',
             format="json")
         
         response_body = response.json()

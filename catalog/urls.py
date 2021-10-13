@@ -27,7 +27,7 @@ urlpatterns = [
     path('api/logout', BlacklistRefreshView.as_view(), name="logout"),#API used to blacklist refresh token
     path('api/register-librarian', RegisterLibrarianApiView.as_view(), name='librarian-register-api'),#API used to register librarians
     path('api/home', HomePageApiView.as_view(),name = 'home-page'),
-    path('api/mybooks', UserBorrowedBooksApiView.as_view(), name='mybooks-api'),
+    path('api/users/<int:pk>/books', UserBorrowedBooksApiView.as_view(), name='mybooks-api'),
 ]
 
 urlpatterns += router.urls

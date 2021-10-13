@@ -22,6 +22,8 @@ from django.contrib.auth.models import User
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.views import  APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework import status
+
 
 
 class BookViewSet(viewsets.ModelViewSet):
@@ -121,8 +123,18 @@ class UserBorrowedBooksApiView(APIView):
     serializer_class = BookInstanceSerializer
     JWT_authenticator = JWTAuthentication()
 
-    def get(self, request):
+    def get(self, request, pk):
+        '''This gets the books borrowed by a specific user'''
+        #Getting the username from the provided access token
         user, _ = self.JWT_authenticator.authenticate(request)
+
+        #if the username does not match the userid provided in the api url, 
+        #Then the request is unauthorized and returns status code 401 
+        if (user != User.objects.get(id=pk)): 
+            return_message = {'Error_message':'The userID does not match authorization credentials'}
+            return Response(return_message,status=status.HTTP_401_UNAUTHORIZED)
+
+        #Get the books borrowed by this user and return them
         query_set = BookInstance.objects.filter(borrower=user).filter(status__exact='o').order_by('due_back')
         serializer = self.serializer_class(query_set,many=True)
 
