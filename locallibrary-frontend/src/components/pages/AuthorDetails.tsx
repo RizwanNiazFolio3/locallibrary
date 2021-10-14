@@ -9,8 +9,8 @@ import {
     useRouteMatch,
   } from "react-router-dom";
   
-  import axiosInstance from '../../axios';
-  import {AuthContext} from "../../contexts/AuthContext"
+import {GetAuthorDetails} from '../../axios';
+import {AuthContext} from "../../contexts/AuthContext"
 
 
 function AuthorDetails() {
@@ -27,13 +27,7 @@ function AuthorDetails() {
 
     //Getting the details of a specific author from the api endpoint
     useEffect(() => {
-        axiosInstance.get("/catalog/api/authors/"+id)
-        .then(response =>{
-            setFirstName(response.data.first_name)
-            setLastName(response.data.last_name)
-            setDateOfBirth(response.data.date_of_birth)
-            setDateOfDeath(response.data.date_of_death)
-        })
+        GetAuthorDetails(id,setFirstName,setLastName,setDateOfBirth,setDateOfDeath)
     },[id])
 
     //This creates links to the update and delete librarian pages

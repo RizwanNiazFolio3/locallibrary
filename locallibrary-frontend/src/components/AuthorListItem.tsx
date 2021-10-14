@@ -7,7 +7,7 @@ import {AuthContext} from "../contexts/AuthContext"
 
 
 // The attributes of a single author
-export type AuthorAttributes = {
+export interface Author {
     id: number;
     first_name: string;
     last_name: string;
@@ -19,7 +19,7 @@ export type AuthorAttributes = {
 // The properties received by this component
 export type AuthorListItemProps = {
     key: number; 
-    item: AuthorAttributes; 
+    item: Author; 
     linksto: string; 
 }
 
