@@ -1,11 +1,19 @@
-import React, {useEffect, useState} from 'react'
+import React, {
+    useEffect, 
+    useState,
+    useContext,
+} from 'react'
 import AuthorListItem, { Author } from '../AuthorListItem'
 import {GetAuthors} from "../../axios"
 import {
+    Link,
     useRouteMatch
 } from 'react-router-dom'
+import {AuthContext} from "../../contexts/AuthContext"
 
 function Authors() {
+    const {isLibrarian}: {isLibrarian: boolean} = useContext(AuthContext)
+
     let {url}: {url: string} = useRouteMatch();
     /**
      * This renders the list of authors page.
@@ -60,6 +68,14 @@ function Authors() {
         })
         return authorListItemComponent
     }
+    //This creates a link to the librarian creation form page
+    function createAuthorLink(){
+        return (
+            <Link to = {`${url}/create`}>
+                Create Author
+            </Link>
+        )
+    }
 
     return (
         <div>
@@ -67,6 +83,7 @@ function Authors() {
             <ul>
                 {setAuthorListItemComponent(authorList)}
             </ul>
+            {isLibrarian?createAuthorLink():null}
         </div>
     )
 }

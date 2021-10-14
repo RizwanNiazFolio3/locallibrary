@@ -10,7 +10,7 @@ import {AuthContext} from "../contexts/AuthContext"
 export interface Author {
     id: number;
     first_name: string;
-    last_name: number;
+    last_name: string;
     date_of_birth: string;
     date_of_death: string;
 }
