@@ -9,6 +9,8 @@ import AuthContextProvider from './contexts/AuthContext';
 import AuthorDelete from './components/pages/AuthorDelete';
 import AuthorUpdate from './components/pages/AuthorUpdate';
 import AuthorCreate from './components/pages/AuthorCreate';
+import { BookListContainer } from './components/pages/BookListContainer';
+import { BookDetailsContainer } from './components/pages/BookDetailsContainer';
 
 function App() {
   return (
@@ -49,6 +51,12 @@ function App() {
             {/* URL for the author Creation page */}
             <Route exact path = "/authors/create">
               <AuthorCreate />
+            </Route>
+            <Route exact path = "/books">
+              <BookListContainer />
+            </Route>
+            <Route path = "/books/:id(\d+)">
+              <BookDetailsContainer />
             </Route>
           </Switch>
         </AuthContextProvider>

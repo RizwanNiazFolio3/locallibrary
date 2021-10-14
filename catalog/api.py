@@ -1,5 +1,5 @@
 from rest_framework.serializers import ModelSerializer
-from catalog.models import Author, Book, BookInstance, Genre
+from catalog.models import Author, Book, BookInstance, Genre, Language
 from rest_framework import (
     generics, 
     viewsets, 
@@ -7,7 +7,9 @@ from rest_framework import (
     mixins,
 )
 from .serializers import (
-    AuthorSerializer, 
+    AuthorSerializer,
+    GenreSerializer,
+    LanguageSerializer, 
     RegisterSerializer, 
     UserSerializer, 
     RegisterLibrarianSerializer, 
@@ -17,10 +19,25 @@ from .serializers import (
 )
 from .permissions import IsLibrarian, OnlyLibrarians, JWT_authenticator #importing our custom permissions
 from rest_framework.response import Response
+from rest_framework.request import Request
 from django.contrib.auth.models import User
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.views import  APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework import status
+
+
+
+class BookViewSet(viewsets.ModelViewSet):
+    """This viewset provides create, retrieve, update and delete apis for books"""
+
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+    
+    permission_classes = [
+        IsLibrarian
+    ]
+
 
 class AuthorViewSet(viewsets.ModelViewSet):
     queryset = Author.objects.all()
@@ -36,7 +53,7 @@ class BlacklistRefreshView(APIView):
     permission_classes = [
         permissions.IsAuthenticated
     ]
-    def post(self, request):
+    def post(self, request: Request) -> Response:
         token = RefreshToken(request.data.get('refresh'))
         token.blacklist()
         return Response("Success")
@@ -49,7 +66,7 @@ class RegisterApiView(generics.GenericAPIView):
         permissions.AllowAny
     ]
     serializer_class = RegisterSerializer
-    def post(self, request, *args,  **kwargs):
+    def post(self, request: Request) -> Response:
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
@@ -108,8 +125,18 @@ class UserBorrowedBooksApiView(APIView):
     serializer_class = BookInstanceSerializer
     JWT_authenticator = JWTAuthentication()
 
-    def get(self, request):
+    def get(self, request, pk):
+        '''This gets the books borrowed by a specific user'''
+        #Getting the username from the provided access token
         user, _ = self.JWT_authenticator.authenticate(request)
+
+        #if the username does not match the userid provided in the api url, 
+        #Then the request is unauthorized and returns status code 401 
+        if (user != User.objects.get(id=pk)): 
+            return_message = {'Error_message':'The userID does not match authorization credentials'}
+            return Response(return_message,status=status.HTTP_401_UNAUTHORIZED)
+
+        #Get the books borrowed by this user and return them
         query_set = BookInstance.objects.filter(borrower=user).filter(status__exact='o').order_by('due_back')
         serializer = self.serializer_class(query_set,many=True)
 
@@ -129,9 +156,22 @@ class AllBorrowedBooksApiViewset(
     queryset = BookInstance.objects.filter(status__exact = 'o').order_by('due_back')
     serializer_class = BookInstanceSerializer
 
-class BookViewSet(viewsets.ModelViewSet):
-    """This viewset provides create, retrieve, update and delete apis for books"""
+
+class GenreViewSet(viewsets.ModelViewSet):
+    """This viewset provides create, retrieve, update and delete apis for genre"""
+
+    permission_classes = [
+        IsLibrarian
+    ]
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
 
 
-    queryset = Book.objects.all()
-    serializer_class = BookSerializer
+class LanguageViewSet(viewsets.ModelViewSet):
+    """This viewset provides create, retrieve, update and delete apis for language"""
+
+    permission_classes = [
+        IsLibrarian
+    ]
+    queryset = Language.objects.all()
+    serializer_class = LanguageSerializer

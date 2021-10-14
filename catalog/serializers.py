@@ -1,9 +1,7 @@
 from rest_framework import serializers
 from rest_framework.relations import StringRelatedField
-from catalog.models import Author, BookInstance, Book
+from catalog.models import Author, BookInstance, Book, Genre, Language
 from django.contrib.auth.models import User, Group
-from .models import Book
-
 
 
 class AuthorSerializer(serializers.ModelSerializer):
@@ -20,6 +18,19 @@ class BookSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class GenreSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Genre
+        fields = '__all__'
+
+class LanguageSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Language
+        fields = '__all__'
+
+
 # Register serializer
 class RegisterSerializer(serializers.ModelSerializer):
     '''Serializer for the Register view'''
@@ -30,7 +41,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'password':{'write_only': True},
         }
-    def create(self, validated_data):
+    def create(self, validated_data: dict) -> User:
         #Creating a new user once it is validated
         user = User.objects.create_user(validated_data['username'], password = validated_data['password'])
         return user
@@ -46,7 +57,7 @@ class UserSerializer(serializers.ModelSerializer):
 class RegisterLibrarianSerializer(RegisterSerializer):
     '''The serializer to register other librarians'''
     #We must override the create method of the parent class so that it now allows us to the user being created to the librarian group
-    def create(self, validated_data):
+    def create(self, validated_data: dict) -> User:
         user = User.objects.create_user(validated_data['username'], password = validated_data['password'])
         librarian_group = Group.objects.get(name="Librarians")
         librarian_group.user_set.add(user)

@@ -1,12 +1,14 @@
 from rest_framework import permissions
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.request import Request
+from rest_framework.views import APIView
 JWT_authenticator = JWTAuthentication()
 
 
 #Creating our own custom permission to allow only users in the librarian group to perfrom CRUD operations
 class IsLibrarian(permissions.BasePermission):
 
-    def has_permission(self,request,view):
+    def has_permission(self, request: Request, view: APIView) -> bool:
         if request.method in permissions.SAFE_METHODS:
             '''
             This overides the has_permission method of the BasePermission class.
