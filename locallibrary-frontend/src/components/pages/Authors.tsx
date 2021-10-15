@@ -37,11 +37,6 @@ function Authors() {
         .then(AuthorList=>{
             setAuthorList(AuthorList)
         })
-        // axiosInstance.get("/catalog/api/authors")
-        // .then(
-        //     (res) => {setAuthorList(res.data)},
-        //     (error) => {console.log("There was an error retrieving author list")}//Place holder. Will be used for error handling
-        // )
     },[])
 
     //This function returns the AuthorListItem components. It is called in the return statement
