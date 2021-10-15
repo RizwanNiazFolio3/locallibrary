@@ -24,7 +24,6 @@ function Login() {
 
     useEffect(()=>{
         if (isAuthenticated){
-            console.log("This happens")
             LogoutFunction()
         }
     //The comment below disables the warning that is generated for not including isAuthenticated and LogoutFunction() 
