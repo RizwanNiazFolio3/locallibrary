@@ -44,7 +44,7 @@ function Home() {
             setData(HomePageData)
             },
             (error)=>{
-            console.log("An error occured")
+                
             }
         )
         //This should define how the app behaves if the api get request fails
