@@ -33,28 +33,17 @@ export class APIClient{
 	}
 	
 	//Used to get the detauls of an author
-	public GetAuthorDetails(id:string):Promise<AuthorDetails>{
-		return APIClient.axiosInstance.get("/catalog/api/authors/"+id)
+	public GetAuthorDetails(id:string):Promise<AuthorAttributes>{
+		return APIClient.axiosInstance.get("/authors/"+id)
 		.then(res=>{
-			
-			let author: AuthorDetails = {
-				first_name:null,
-				last_name:null,
-				date_of_death:null,
-				date_of_birth:null
-			}
-			
-			author.date_of_birth = res.data.date_of_birth 
-			author.date_of_death = res.data?.date_of_death
-			author.first_name = res.data?.first_name
-			author.last_name = res.data?.last_name
+			const author:AuthorAttributes = res.data
 			return author
 		})
 	}
 	
 	//Used to get data needed to fill the home page
 	public GetHomePageData():Promise<HomeData>{
-		return APIClient.axiosInstance.get("/catalog/api/home")
+		return APIClient.axiosInstance.get("/home")
 		.then(res=>{
 			let HomePageData:HomeData = res.data
 			return HomePageData
@@ -64,7 +53,7 @@ export class APIClient{
 	//Used to get a list of all the authors
 	public GetAuthorsList():Promise<AuthorAttributes[]>{
 		let authorList:AuthorAttributes[]
-		return APIClient.axiosInstance.get("/catalog/api/authors")
+		return APIClient.axiosInstance.get("/authors")
 		.then(response=>{
 			authorList = response.data
 			return authorList
@@ -73,7 +62,7 @@ export class APIClient{
 
 	//Used to get access and refresh tokens for the login component
 	public Login(data:UserLoginData):Promise<Tokens>{
-        return APIClient.axiosInstance.post("/catalog/api/token/",data)
+        return APIClient.axiosInstance.post("/token/",data)
         .then((res) =>{
 			let tokens:Tokens = {
 				access_token:res.data.access,
@@ -94,7 +83,7 @@ export class APIClient{
 	//Used to clear the access and refresh tokens, remove them from the authorization headers and add the refresh token to
 	//the blacklist app
 	public Logout():Promise<boolean>{
-		return APIClient.axiosInstance.post("/catalog/api/logout",{refresh : localStorage.getItem("refresh_token")})
+		return APIClient.axiosInstance.post("/logout",{refresh : localStorage.getItem("refresh_token")})
 		.then(res=>{
             localStorage.removeItem('access_token')
             localStorage.removeItem('refresh_token')
@@ -105,7 +94,7 @@ export class APIClient{
 	
 	//Used to create a new author from the create author component
 	public PostAuthor(AuthorData:AuthorDetails):Promise<Number>{
-		return APIClient.axiosInstance.post('/catalog/api/authors/',AuthorData)
+		return APIClient.axiosInstance.post('/authors/',AuthorData)
         .then(res =>{
 			//Redirect to the details page of the currently created author
             const id:Number = res.data.id
@@ -115,7 +104,7 @@ export class APIClient{
 	
 	//Used to delete a given author from the delete author page
 	public DeleteAuthor(id:string):Promise<Boolean>{
-		return APIClient.axiosInstance.delete('/catalog/api/authors/' + id + "/")
+		return APIClient.axiosInstance.delete('/authors/' + id + "/")
 		.then(res=>{
 			return true
 		})
@@ -123,7 +112,7 @@ export class APIClient{
 	
 	//Used to update a given authors data
 	public PutAuthor(id:string,data:AuthorDetails):Promise<Boolean>{
-		return APIClient.axiosInstance.put("/catalog/api/authors/"+id+"/", data)
+		return APIClient.axiosInstance.put("/authors/"+id+"/", data)
 		.then(res=>{
 			return true
 		})
@@ -132,7 +121,7 @@ export class APIClient{
 	//Helper function for the axios interceptors.
 	//Used to get a new access token using a refresh token
 	private UseRefreshToken(refreshToken:string):Promise<string>{
-		return APIClient.axiosInstance.post('/catalog/api/token/refresh/',{refresh : refreshToken})
+		return APIClient.axiosInstance.post('/token/refresh/',{refresh : refreshToken})
 		.then(response=>{
 			const access_token:string = response.data.access
 			localStorage.setItem('access_token',access_token)
@@ -201,6 +190,7 @@ export const client = APIClient.getInstance({
 			'Content-Type': 'application/json',
 			accept: 'application/json',
 		},
+	baseURL: '/catalog/api/',
 		// transformResponse: [(response) =>{
 	// 	return response.data
 	// }]
@@ -220,6 +210,7 @@ const axiosInstance = axios.create({
 			'Content-Type': 'application/json',
 			accept: 'application/json',
 		},
+	//baseURL: 'catalog/api/',
 		// transformResponse: [(response) =>{
 	// 	return response.data
 	// }]
