@@ -3,13 +3,14 @@ import React, {
     useEffect,
     useState,
 } from 'react'
-import axiosInstance from '../../axios'
+import {client} from '../../axios'
 import {
     useParams,
 } from 'react-router-dom'
-import AuthorForm, {AuthorDetails} from '../AuthorForm';
+import AuthorForm from '../AuthorForm';
 import {SubmitHandler} from 'react-hook-form'
 import {useHistory} from 'react-router-dom'
+import {AuthorDetails} from '../../CustomTypes'
 
 interface Props {
     
@@ -19,10 +20,10 @@ function AuthorUpdate(props: Props): ReactElement {
     let {id}:{id: string} = useParams();
     const history = useHistory()
 
-    const [firstName,setFirstName] = useState<string>()
-    const [lastName,setLastName] = useState<string>()
-    const [dateOfBirth,setDateOfBirth] = useState<string>()
-    const [dateOfDeath,setDateOfDeath] = useState<string>()
+    const [firstName,setFirstName] = useState<string|null|undefined>()
+    const [lastName,setLastName] = useState<string|null|undefined>()
+    const [dateOfBirth,setDateOfBirth] = useState<string|null|undefined>()
+    const [dateOfDeath,setDateOfDeath] = useState<string|null|undefined>()
     const [loaded,setLoaded] = useState<boolean>(false)
 
     /**
@@ -30,12 +31,12 @@ function AuthorUpdate(props: Props): ReactElement {
      * This data will be used to prefill the form, which will render after the data has been obtained
      */
     useEffect(() => {
-        axiosInstance.get("/catalog/api/authors/"+id)
-        .then(response =>{
-            setFirstName(response.data.first_name)
-            setLastName(response.data.last_name)
-            setDateOfBirth(response.data.date_of_birth)
-            setDateOfDeath(response.data.date_of_death)
+        client.GetAuthorDetails(id)
+        .then(Author=>{
+            setFirstName(Author.first_name)
+            setLastName(Author.last_name)
+            setDateOfBirth(Author.date_of_birth)
+            setDateOfDeath(Author.date_of_death)
             setLoaded(true)
         })
     },[id])
@@ -46,7 +47,7 @@ function AuthorUpdate(props: Props): ReactElement {
      * @param data The AuthorDetails interface is defined in the AuthorForm component
      */
     const onSubmit: SubmitHandler<AuthorDetails> = data => {
-        axiosInstance.put("/catalog/api/authors/"+id+"/", cleanData(data))
+        client.PutAuthor(id,cleanData(data))
         .then(response =>{
             history.push('/authors/'+id)
         })

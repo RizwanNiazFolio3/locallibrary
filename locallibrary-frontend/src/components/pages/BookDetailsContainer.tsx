@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import axios from '../../axios'
 import { BookAttributes } from './BookListContainer'
 import { useParams } from 'react-router'
-import { Author } from '../AuthorListItem'
+import { AuthorAttributes } from '../../CustomTypes'
 import { BookDetailsPresentation } from './BookDetailsPresentation'
 
 
@@ -45,8 +45,8 @@ export const BookDetailsContainer = () => {
     let [genres, setGenres]:
         [GenreMap, React.Dispatch<React.SetStateAction<GenreMap>>] = useState({});  // Genre of the book
 
-    let [author, setAuthor]: [Author | undefined,
-        React.Dispatch<React.SetStateAction<Author | undefined>>] = useState();   // Author of the book
+    let [author, setAuthor]: [AuthorAttributes | undefined,
+        React.Dispatch<React.SetStateAction<AuthorAttributes | undefined>>] = useState();   // Author of the book
 
     let [language, setLanguage]: [LanguageAttributes | undefined,
         React.Dispatch<React.SetStateAction<LanguageAttributes | undefined>>] = useState(); // Language of the book

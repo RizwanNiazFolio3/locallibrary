@@ -7,7 +7,7 @@ import {
     useParams,
     useHistory,
 } from 'react-router-dom';
-import axiosInstance from '../../axios'
+import {client} from '../../axios'
 
 interface Props {
 
@@ -16,29 +16,30 @@ interface Props {
 function AuthorDelete(props: Props): ReactElement {
     let {id}:{id: string} = useParams();
     const history = useHistory()
-    const [firstName,setFirstName] = useState<string>("--Loading--")
-    const [lastName,setLastName] = useState<string>("--Loading--")
+    const [firstName,setFirstName] = useState<string|null|undefined>("--Loading--")
+    const [lastName,setLastName] = useState<string|null|undefined>("--Loading--")
 
     //We will make a get request to obtain the details of the author we are about to delete.
     useEffect(() =>{
-        axiosInstance.get('/catalog/api/authors/' + id + "/")
-        .then(response => {
-            setFirstName(response.data.first_name)
-            setLastName(response.data.last_name)
+        client.GetAuthorDetails(id)
+        .then(Author=>{
+            setFirstName(Author.first_name)
+            setLastName(Author.last_name)
         })
-    },[id])
+    }
+    ,[id])
 
     //Deleting the author and then redirecting to the /authors page upon success
     function handleClick()
     {
-        axiosInstance.delete('/catalog/api/authors/' + id + "/")
+        client.DeleteAuthor(id)
         .then(
             (response) => {
                 history.push('/authors')
-            } 
+            }    
         )
     }
-
+    
     return (
         <div>
             <h1>DELETE Author {lastName}, {firstName}  ?</h1>

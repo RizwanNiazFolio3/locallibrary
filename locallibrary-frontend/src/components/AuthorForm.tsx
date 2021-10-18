@@ -5,14 +5,7 @@ import {
     useForm,
     SubmitHandler,
 } from 'react-hook-form'
-
-//saving the author details as an interface 
-export interface AuthorDetails {
-    first_name?: string|null,
-    last_name?: string|null,
-    date_of_birth?: string|null,
-    date_of_death?:string|null
-}
+import { AuthorDetails } from '../CustomTypes'
 
 /**
  * Extending the AuthorDetails interface to create the props interface,

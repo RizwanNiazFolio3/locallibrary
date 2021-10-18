@@ -3,13 +3,14 @@ import React, {
     useState,
     useContext,
 } from 'react'
-import AuthorListItem, { Author } from '../AuthorListItem'
-import {GetAuthors} from "../../axios"
+import {client} from "../../axios"
+import AuthorListItem from '../AuthorListItem'
 import {
     Link,
     useRouteMatch
 } from 'react-router-dom'
 import {AuthContext} from "../../contexts/AuthContext"
+import { AuthorAttributes } from '../../CustomTypes'
 
 function Authors() {
     const {isLibrarian}: {isLibrarian: boolean} = useContext(AuthContext)
@@ -23,16 +24,23 @@ function Authors() {
      * as props.
      * The error handling for this component has not been implemented yet.
      */
-    const [authorList, setAuthorList]: [Author[], React.Dispatch<React.SetStateAction<never[]>>] = useState([])
+    const [authorList, setAuthorList] = useState<AuthorAttributes[]>([])
 
     //When the page first loads up, make an api call to recieve a list of author objects
     //and save it in the state.
     useEffect(() => {
-        GetAuthors(setAuthorList)
+        /**
+         * Since we've added "proxy": "http://127.0.0.1:8000/", to packages.json,
+         * We do not need to use the full URL and instead a relative URL can be used to access the endpoint
+         */
+        client.GetAuthorsList()
+        .then(AuthorList=>{
+            setAuthorList(AuthorList)
+        })
     },[])
 
     //This function returns the AuthorListItem components. It is called in the return statement
-    function setAuthorListItemComponent(authorList: Author[]){
+    function setAuthorListItemComponent(authorList: AuthorAttributes[]){
         /**
          * Here we use the map method to individually pass the author objects in the authorList as props 
          * to the AuthorListItem component. This gives us a list of such components.

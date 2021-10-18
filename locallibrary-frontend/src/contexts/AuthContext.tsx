@@ -9,6 +9,13 @@ export type DecodedToken = {
     isAuthenticated: boolean;
 }
 
+export interface DecodedRefreshToken {
+    token_type:string,
+    exp:number,
+    jti:string,
+    user_id:number,
+    isLibrarian:boolean
+}
 
 // The attributes in context
 type ContextAttributes = {
@@ -41,9 +48,7 @@ function AuthContextProvider({children}: {children: JSX.Element[]}){
 
 
     useEffect(() =>{
-
         const tok = localStorage.getItem('access_token');
-        
 
         if (tok != null){
             const decoded_tok: DecodedToken = jwt_decode(tok);

@@ -8,20 +8,27 @@ function LoginComponent() {
     //If the current user is authenticated, a logout button will be shown, otherwise,
     //A link to the login page will be rendered
     const {isAuthenticated}: {isAuthenticated: boolean} = useContext(AuthContext)
-    if (isAuthenticated === true){
+
+    function isAuthenticatedIsTrue(){
         return(
             <>
                 <Logout />
             </>
         ) 
     }
-    else{
+
+    function isAuthenticatedIsFalse(){
         return(
             <>
                 <p><Link to = "/Login">Login</Link></p>
             </>
-        )  
+        )
     }
+    return(
+        <>
+        {isAuthenticated === true? isAuthenticatedIsTrue():isAuthenticatedIsFalse()}
+        </>
+    )  
 }
 
 export default LoginComponent
